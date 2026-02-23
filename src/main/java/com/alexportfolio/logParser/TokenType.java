@@ -1,13 +1,14 @@
 package com.alexportfolio.logParser;
 
 public enum TokenType {
-    IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, NEWLINE, MULTILINE, EOF, PART;
-    public static boolean isValid(TokenType t){
-        if(t != null && t!= TokenType.PART) return true;
+    IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, NEWLINE, MULTILINE, EOF, UNRESOLVED, UNKNOWN;
+    public static boolean isValid(TokenType t) {
+        if (t != null && t != TokenType.UNRESOLVED && t != TokenType.UNKNOWN) return true;
         return false;
     }
-    public static TokenType getType(char c){
-        return switch (c){
+
+    public static TokenType getType(char c) {
+        return switch (c) {
             case '=' -> TokenType.EQUAL;
             case '{' -> TokenType.LBRACE;
             case '}' -> TokenType.RBRACE;
@@ -15,8 +16,8 @@ public enum TokenType {
             case ']' -> TokenType.RBRACKET;
             case '\n', '\r' -> TokenType.NEWLINE;
             default -> {
-                if (Character.isLetterOrDigit(c) || c == '<' || c == '>') yield PART;
-                yield null;
+                if(Character.isWhitespace(c)) yield UNKNOWN;
+                yield UNRESOLVED;
             }
         };
     }
