@@ -1,4 +1,4 @@
-package com.alexportfolio.logParser;
+package com.alexportfolio.logParser.lexer;
 
 public enum TokenType {
     IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, NEWLINE, MULTILINE, EOF, UNRESOLVED, UNKNOWN;
