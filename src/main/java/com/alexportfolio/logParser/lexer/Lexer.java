@@ -3,9 +3,6 @@ package com.alexportfolio.logParser.lexer;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Lexer {
 
     private final String content;
@@ -46,16 +43,18 @@ public class Lexer {
                     && candidate != TokenType.UNRESOLVED
                     && startIdx >= 0) {
 
-                String lexeme = content.substring(startIdx, cursor);
+                String lexeme = content.substring(startIdx, cursor).strip();
                 startIdx = -1;
 
                 TokenType typeToEmit;
                 if (candidate == TokenType.EQUAL)
                     typeToEmit = TokenType.IDENTIFIER;
                 else if (candidate == TokenType.NEWLINE && lastToken != TokenType.EQUAL)
-                    typeToEmit = TokenType.IDENTIFIER;
-                else
-                    typeToEmit = TokenType.VALUE;
+                    typeToEmit = lexeme.endsWith(">") ? TokenType.OBJNAME : TokenType.IDENTIFIER;
+                else {
+                    // here it's either a direct value, or a MULTILINE token
+                    typeToEmit = lexeme.equals("...") ?  TokenType.MULTILINE : TokenType.VALUE;
+                }
 
                 result.add(new Token(typeToEmit, lexeme, tokenLine, tokenCol));
             }

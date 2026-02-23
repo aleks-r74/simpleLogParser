@@ -1,7 +1,7 @@
 package com.alexportfolio.logParser.lexer;
 
 public enum TokenType {
-    IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, NEWLINE, MULTILINE, EOF, UNRESOLVED, UNKNOWN;
+    IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, NEWLINE, MULTILINE, OBJNAME, EOF, UNRESOLVED, UNKNOWN;
     public static boolean isValid(TokenType t) {
         if (t != null && t != TokenType.UNRESOLVED && t != TokenType.UNKNOWN) return true;
         return false;
