@@ -1,10 +1,10 @@
 package com.alexportfolio.logParser.lexer;
 
 public class Token {
-        TokenType type;
-        String lexeme;
-        int line;
-        int column;
+        public final TokenType type;
+        public final String lexeme;
+        public final int line;
+        public final int column;
 
         public Token(TokenType type, String lexeme, int line, int column){
             this.type = type;

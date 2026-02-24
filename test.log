@@ -1,22 +1,29 @@
-ObjectName<9>
+ObjectName<1>
 	key1="string value"
 	key2=[{
-			ObjectName<99>
+			ObjectName<1.1>
 			key99="blabla"
-			key88={key888="888"}
+			key88={
+			        ObjectName<1.1.1>
+			        key888="888"
+			}
 		}
 		{
-			ObjectName<99>
+			ObjectName<1.2>
 			key99="blabla"
-			key88={key888="888"}
+			key88={
+			        ObjectName<1.2.1>
+			        key888="888"
+			}
 		}]
 	key3={
-		SubObjectName<5>
-		key4=
-		key5=
-		key6=
+		SubObjectName<1-k-1>
+		key4=null
+		key5=null
+		key6=null
 	}
 	key4=...
 	line1
 	line2
 	line3
+

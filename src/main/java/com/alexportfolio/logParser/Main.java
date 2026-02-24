@@ -3,6 +3,9 @@ package com.alexportfolio.logParser;
 import com.alexportfolio.logParser.lexer.Lexer;
 import com.alexportfolio.logParser.lexer.Token;
 import com.alexportfolio.logParser.lexer.TokenType;
+import com.alexportfolio.logParser.parser.Parser;
+import com.alexportfolio.logParser.parser.node.Node;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,8 +27,9 @@ public class Main {
         String logs = Files.readString(Path.of(".\\test.log"));
         Lexer lexer = new Lexer(logs);
         List<Token> tokens = lexer.tokenize();
-        tokens.forEach(System.out::println);
-
+        Parser parser = new Parser(tokens);
+        Node root = parser.parseDocument();
+        System.out.println(root);
 
     }
 }
