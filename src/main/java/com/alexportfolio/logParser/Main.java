@@ -5,6 +5,8 @@ import com.alexportfolio.logParser.lexer.Token;
 import com.alexportfolio.logParser.lexer.TokenType;
 import com.alexportfolio.logParser.parser.Parser;
 import com.alexportfolio.logParser.parser.node.Node;
+import com.alexportfolio.logParser.parser.node.ObjectNode;
+import com.alexportfolio.logParser.serializer.ObjectNodeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -31,7 +33,10 @@ public class Main {
         List<Token> tokens = lexer.tokenize();
         Parser parser = new Parser(tokens);
         Node root = parser.parseDocument();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(ObjectNode.class, new ObjectNodeAdapter())
+                .setPrettyPrinting()
+                .create();
         String json = gson.toJson(root); // rootNode is your ObjectNode
         System.out.println(json);
 
