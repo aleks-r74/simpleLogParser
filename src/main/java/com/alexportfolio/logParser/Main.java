@@ -17,7 +17,7 @@ public class Main {
 
     static int cursor = 0;
     static int startIdx = -1;
-    static TokenType lastToken = TokenType.NEWLINE;
+    static TokenType lastToken = TokenType.ENDLINE;
     static List<Token> result = new ArrayList<>();
 
     static int line = 1, col = 1;        // current position

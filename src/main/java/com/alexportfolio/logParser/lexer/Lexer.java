@@ -9,7 +9,6 @@ public class Lexer {
 
     private int cursor = 0;
     private int startIdx = -1;
-    private TokenType lastToken = TokenType.NEWLINE;
     private TokenType lastGrammarToken = TokenType.UNKNOWN;
     private final List<Token> result = new ArrayList<>();
 
@@ -66,15 +65,14 @@ public class Lexer {
             // Single-character token
             if (TokenType.isValid(candidate)) {
                 // handling absent values
-                if(candidate == TokenType.NEWLINE && lastGrammarToken == TokenType.EQUAL)
+                if(lastGrammarToken == TokenType.EQUAL && candidate == TokenType.ENDLINE)
                     result.add(new Token(TokenType.VALUE,"null", line, col));
 
-                result.add(new Token(candidate, line, col));
-
-                if(candidate!=TokenType.NEWLINE)
+                if(candidate!=TokenType.ENDLINE) {
+                    result.add(new Token(candidate, line, col));
                     lastGrammarToken = candidate;
+                }
 
-                lastToken = candidate;
             }
 
             // Advance position

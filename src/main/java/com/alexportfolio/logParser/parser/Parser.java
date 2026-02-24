@@ -5,7 +5,6 @@ import com.alexportfolio.logParser.lexer.TokenType;
 import com.alexportfolio.logParser.parser.node.*;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public final class Parser {
 
@@ -26,23 +25,15 @@ public final class Parser {
         return node;
     }
 
-    /**
-     * Parses a key-value pair and inserts it into the given ObjectNode.
-     */
     private void parseKeyValueInto(ObjectNode target) {
-        if(!skipNewLinesThen(()->match(TokenType.IDENTIFIER))) return;
-        Token t = previous();
+        Token t = consume(TokenType.IDENTIFIER);
         String key = t.lexeme;
         consume(TokenType.EQUAL);
         target.fields.put(key, parseValue());
     }
 
-    /**
-     * Dispatches parsing to the correct Node type
-     * (object, array, string, or multiline).
-     */
     private Node parseValue() {
-        return switch (skipNewLinesThen(()->peek()).type){
+        return switch (peek().type){
             case VALUE -> parseString();
             case LBRACKET -> parseArray();
             case LBRACE -> parseObject();
@@ -51,34 +42,24 @@ public final class Parser {
         };
     }
 
-    /**
-     * parses an object {...}
-     * @return ObjectNode
-     */
     private ObjectNode parseObject() {
         consume(TokenType.LBRACE);
         ObjectNode objNode = new ObjectNode();
-        objNode.name = skipNewLinesThen(()->consume(TokenType.OBJNAME)).lexeme;
-        do{
-            Token t = skipNewLinesThen(this::peek);
-            if(t.type == TokenType.RBRACE) {advance(); break;}
+        objNode.name = consume(TokenType.OBJNAME).lexeme;
+        while (!isAtEnd() && peek().type != TokenType.RBRACE) {
             parseKeyValueInto(objNode);
-        }while(!isAtEnd());
+        }
+        consume(TokenType.RBRACE);
         return objNode;
     }
 
-    /**
-     * parses an array of objects [{...} {...}]
-     * @return ArrayNode
-     */
     private ArrayNode parseArray() {
         consume(TokenType.LBRACKET);
         ArrayNode arrNode = new ArrayNode();
-        do{
-            Token t = skipNewLinesThen(this::peek);
-            if(t.type == TokenType.RBRACKET){ advance(); break;}
+        while(peek().type != TokenType.RBRACKET){
             arrNode.elements.add(parseObject());
-        }while(!isAtEnd());
+        }
+        consume(TokenType.RBRACKET);
         return arrNode;
     }
 
@@ -88,81 +69,33 @@ public final class Parser {
         return strNode;
     }
 
-    /**
-     * This method needs to be changed. lines after Multiline should be tokenized as LINE. just a stub implementation for now
-     * @return
-     */
     private MultilineNode parseMultiline() {
         consume(TokenType.MULTILINE);
         MultilineNode linesNode = new MultilineNode();
-        int newLineCounter = 0;
-        Token t;
-        while(!isAtEnd() && newLineCounter < 2) {
-            t = advance();
-            if(t.type == TokenType.NEWLINE) {
-                newLineCounter++;
-                continue;
-            }
-            else
-                newLineCounter=0;
-
-            if(t.type == TokenType.LINE)
-                linesNode.lines.add(t.lexeme);
+        while(peek().type == TokenType.LINE) {
+            linesNode.lines.add(advance().lexeme);
         }
         return linesNode;
     }
 
-    // --- Navigation helpers ---
-
-    /** Returns true if the next token matches the given type (does not advance). */
-    private boolean check(TokenType type) {
-        return !isAtEnd() && peek().type == type;
-    }
-
-    /** Returns the next token without advancing the cursor. */
     private Token peek() {
+        if (current >= tokens.size()) return tokens.get(tokens.size() - 1);
         return tokens.get(current);
     }
 
-    /** Returns true and advances if the next token matches the given type. */
-    private boolean match(TokenType type) {
-        if (check(type)) {
-            advance();
-            return true;
-        }
-        return false;
-    }
-
-    /** Returns the previous token (the one most recently consumed). */
-    private Token previous() {
+    private Token advance() {
+        if (!isAtEnd()) current++;
         return tokens.get(current - 1);
     }
 
-    /** Consumes the next token and returns it. */
-    private Token advance() {
-        if (!isAtEnd()) current++;
-        return previous();
-    }
-
-    /** Consumes the next token if it matches the expected type, otherwise throws. */
     private Token consume(TokenType expected) {
-        if (check(expected)) return advance();
+        if (peek().type == expected) return advance();
         throw new RuntimeException("Expected token: " + expected + ", got: " + peek());
     }
 
-    /** Returns true if we have reached the end of the token list. */
     private boolean isAtEnd() {
-        return peek().type == TokenType.EOF || current >= tokens.size();
+        return current >= tokens.size()
+                || tokens.get(current).type == TokenType.EOF;
     }
 
-    private <T> T skipNewLinesThen(Supplier<T> action){
-        skipNewlines();
-        return action.get();
-    }
-
-    private void skipNewlines(){
-        while (!isAtEnd() && peek().type == TokenType.NEWLINE) {
-            advance();
-        }
-    }
 }
