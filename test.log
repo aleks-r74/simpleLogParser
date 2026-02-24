@@ -8,6 +8,9 @@ ObjectName<1>
 			        key888="888"
 			}
 		}
+
+
+
 		{
 			ObjectName<1.2>
 			key99="blabla"
@@ -16,14 +19,21 @@ ObjectName<1>
 			        key888="888"
 			}
 		}]
+
+
+
 	key3={
 		SubObjectName<1-k-1>
 		key4=
 		key5=
 		key6=
 	}
+
 	key4=...
 	line1
 	line2
 	line3
+
+		key5="lastvalue"
+
 

@@ -30,7 +30,8 @@ public final class Parser {
      * Parses a key-value pair and inserts it into the given ObjectNode.
      */
     private void parseKeyValueInto(ObjectNode target) {
-        Token t = skipNewLinesThen(()->consume(TokenType.IDENTIFIER));
+        if(!skipNewLinesThen(()->match(TokenType.IDENTIFIER))) return;
+        Token t = previous();
         String key = t.lexeme;
         consume(TokenType.EQUAL);
         target.fields.put(key, parseValue());
@@ -94,9 +95,19 @@ public final class Parser {
     private MultilineNode parseMultiline() {
         consume(TokenType.MULTILINE);
         MultilineNode linesNode = new MultilineNode();
+        int newLineCounter = 0;
         Token t;
-        while(!isAtEnd()) {
-            linesNode.lines.add(skipNewLinesThen(()->advance()).lexeme);
+        while(!isAtEnd() && newLineCounter < 2) {
+            t = advance();
+            if(t.type == TokenType.NEWLINE) {
+                newLineCounter++;
+                continue;
+            }
+            else
+                newLineCounter=0;
+
+            if(t.type == TokenType.LINE)
+                linesNode.lines.add(t.lexeme);
         }
         return linesNode;
     }
@@ -144,7 +155,7 @@ public final class Parser {
         return peek().type == TokenType.EOF || current >= tokens.size();
     }
 
-    private Token skipNewLinesThen(Supplier<Token> action){
+    private <T> T skipNewLinesThen(Supplier<T> action){
         skipNewlines();
         return action.get();
     }
