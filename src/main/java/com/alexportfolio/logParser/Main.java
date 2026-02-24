@@ -27,6 +27,7 @@ public class Main {
         String logs = Files.readString(Path.of(".\\test.log"));
         Lexer lexer = new Lexer(logs);
         List<Token> tokens = lexer.tokenize();
+        tokens.forEach(System.out::println);
         Parser parser = new Parser(tokens);
         Node root = parser.parseDocument();
         System.out.println(root);

@@ -10,7 +10,7 @@ public class Lexer {
     private int cursor = 0;
     private int startIdx = -1;
     private TokenType lastToken = TokenType.NEWLINE;
-
+    private TokenType lastGrammarToken = TokenType.UNKNOWN;
     private final List<Token> result = new ArrayList<>();
 
     private int line = 1, col = 1;
@@ -46,22 +46,34 @@ public class Lexer {
                 String lexeme = content.substring(startIdx, cursor).strip();
                 startIdx = -1;
 
-                TokenType typeToEmit;
-                if (candidate == TokenType.EQUAL)
-                    typeToEmit = TokenType.IDENTIFIER;
-                else if (candidate == TokenType.NEWLINE && lastToken != TokenType.EQUAL)
-                    typeToEmit = lexeme.endsWith(">") ? TokenType.OBJNAME : TokenType.IDENTIFIER;
-                else {
-                    // here it's either a direct value, or a MULTILINE token
-                    typeToEmit = lexeme.equals("...") ?  TokenType.MULTILINE : TokenType.VALUE;
+                TokenType keyOrVal = (candidate == TokenType.EQUAL) ? TokenType.IDENTIFIER : TokenType.VALUE;
+                // detect type of value
+                if(keyOrVal == TokenType.VALUE){
+                    if(lexeme.contains("...")) {
+                        lastGrammarToken = keyOrVal = TokenType.MULTILINE;
+                    }
+                    else if(lexeme.contains("<")){
+                        keyOrVal = TokenType.OBJNAME;
+                    }
+                    else if(lastGrammarToken != TokenType.EQUAL)
+                        keyOrVal = TokenType.LINE;
+                    else
+                        lastGrammarToken = TokenType.VALUE;
                 }
-
-                result.add(new Token(typeToEmit, lexeme, tokenLine, tokenCol));
+                result.add(new Token(keyOrVal, lexeme, tokenLine, tokenCol));
             }
 
             // Single-character token
             if (TokenType.isValid(candidate)) {
+                // handling absent values
+                if(candidate == TokenType.NEWLINE && lastGrammarToken == TokenType.EQUAL)
+                    result.add(new Token(TokenType.VALUE,"null", line, col));
+
                 result.add(new Token(candidate, line, col));
+
+                if(candidate!=TokenType.NEWLINE)
+                    lastGrammarToken = candidate;
+
                 lastToken = candidate;
             }
 

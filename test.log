@@ -18,9 +18,9 @@ ObjectName<1>
 		}]
 	key3={
 		SubObjectName<1-k-1>
-		key4=null
-		key5=null
-		key6=null
+		key4=
+		key5=
+		key6=
 	}
 	key4=...
 	line1
