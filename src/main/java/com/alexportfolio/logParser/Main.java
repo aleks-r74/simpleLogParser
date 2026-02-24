@@ -5,6 +5,8 @@ import com.alexportfolio.logParser.lexer.Token;
 import com.alexportfolio.logParser.lexer.TokenType;
 import com.alexportfolio.logParser.parser.Parser;
 import com.alexportfolio.logParser.parser.node.Node;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 import java.io.IOException;
@@ -27,10 +29,11 @@ public class Main {
         String logs = Files.readString(Path.of(".\\test.log"));
         Lexer lexer = new Lexer(logs);
         List<Token> tokens = lexer.tokenize();
-        tokens.forEach(System.out::println);
         Parser parser = new Parser(tokens);
         Node root = parser.parseDocument();
-        System.out.println(root);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(root); // rootNode is your ObjectNode
+        System.out.println(json);
 
     }
 }

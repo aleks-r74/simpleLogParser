@@ -2,7 +2,7 @@ ObjectName<1>
 	key1="string value"
 	key2=[{
 			ObjectName<1.1>
-			key99="blabla"
+			key99="blabla    "
 			key88={
 			        ObjectName<1.1.1>
 			        key888="888"

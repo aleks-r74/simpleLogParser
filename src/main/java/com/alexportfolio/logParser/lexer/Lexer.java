@@ -42,7 +42,7 @@ public class Lexer {
                     && candidate != TokenType.UNRESOLVED
                     && startIdx >= 0) {
 
-                String lexeme = content.substring(startIdx, cursor).strip();
+                String lexeme = getLexeme();
                 startIdx = -1;
 
                 TokenType keyOrVal = (candidate == TokenType.EQUAL) ? TokenType.IDENTIFIER : TokenType.VALUE;
@@ -87,5 +87,14 @@ public class Lexer {
 
         result.add(new Token(TokenType.EOF, line, col));
         return result;
+    }
+
+    private String getLexeme() {
+        String val = content.substring(startIdx, cursor);
+        int start = 0;
+        int end = val.length();
+        if (val.startsWith("\"")) start++;
+        if (val.endsWith("\"")) end--;
+        return val.substring(start, end).translateEscapes();
     }
 }
