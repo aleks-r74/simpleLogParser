@@ -20,7 +20,7 @@ public class Lexer {
         if (!normalized.endsWith("\n")) {
             normalized += "\n";
         }
-        this.content = normalized;
+        this.content = normalized.replaceAll("(\\[\\d+\\]|<\\d+>)", "");
     }
 
     public List<Token> tokenize() {
@@ -51,7 +51,7 @@ public class Lexer {
                     if(lexeme.contains("...")) {
                         lastGrammarToken = keyOrVal = TokenType.MULTILINE;
                     }
-                    else if(lexeme.contains("<")){
+                    else if(lastGrammarToken == TokenType.LBRACE || lastGrammarToken == TokenType.UNKNOWN){
                         keyOrVal = TokenType.OBJNAME;
                     }
                     else if(lastGrammarToken != TokenType.EQUAL)
