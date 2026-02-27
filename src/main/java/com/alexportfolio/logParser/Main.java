@@ -2,7 +2,6 @@ package com.alexportfolio.logParser;
 
 import com.alexportfolio.logParser.lexer.Lexer;
 import com.alexportfolio.logParser.lexer.Token;
-import com.alexportfolio.logParser.lexer.TokenType;
 import com.alexportfolio.logParser.parser.Parser;
 import com.alexportfolio.logParser.parser.node.*;
 import com.alexportfolio.logParser.serializer.ObjectNodeAdapter;
@@ -19,18 +18,11 @@ import java.util.List;
 
 public class Main {
 
-    static int cursor = 0;
-    static int startIdx = -1;
-    static TokenType lastToken = TokenType.ENDLINE;
-    static List<Token> result = new ArrayList<>();
-
-    static int line = 1, col = 1;        // current position
-    static int tokenLine = 0, tokenCol = 0; // start position of current multi-char token
-
     public static void main(String[] args) throws IOException {
         String logs = Files.readString(Path.of(".\\test.log"));
         Lexer lexer = new Lexer(logs);
         List<Token> tokens = lexer.tokenize();
+        tokens.forEach(System.out::println);
         Parser parser = new Parser(tokens);
         Node root = parser.parseDocument();
         Gson gson = new GsonBuilder()

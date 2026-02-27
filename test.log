@@ -1,30 +1,35 @@
 ObjectName<1>
 	key1="string value"
-	key2[2]=[{
-			ObjectName<11>
-			key99="blabla    "
-			key88={
-			        ObjectName<111>
-			        key888="888"
-			}
-		}
+	key2[2]=[
+        {
+                ObjectName<11>
+                key99="blabla    "
+                key88={
+                        ObjectName<111>
+                        key888="888[]"
+                }
+        }
 		{
 			ObjectName<12>
 			key99="blabla"
 			key88={
 			        ObjectName<121>
-			        key888="888"
+			        key888="8[8]8"
 			}
-		}]
+		}
+	]
+	.[.This Line should be noise.].
 	key3={
 		SubObjectName<12>
 		key4=
-		key5=
+		key5="[fff]"
 		key6=
 	}
 	key4=...
-	line1
-	line2
-	line3
+	line1 can have [square brackets]
+	line 2 also can have them []
+	[]line3 is not exeption!
 
 	key5="lastvalue"
+
+8746598745967a[]and this should be noise]a

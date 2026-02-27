@@ -6,7 +6,7 @@ import java.util.List;
 public class Lexer {
 
     private final String content;
-
+    private boolean withNoise = false;
     private int cursor = 0;
     private int startIdx = -1;
     private TokenType lastGrammarToken = TokenType.UNKNOWN;
@@ -15,12 +15,23 @@ public class Lexer {
     private int line = 1, col = 1;
     private int tokenLine = 0, tokenCol = 0;
 
+    /**
+     * @param input     - input text
+     * @param withNoise - include tokens NOISE in the result
+     */
+    public Lexer(String input, Boolean withNoise) {
+        this(input);
+        this.withNoise = withNoise;
+    }
+
     public Lexer(String input) {
         String normalized = input.replace("\r\n", "\n");
         if (!normalized.endsWith("\n")) {
             normalized += "\n";
         }
-        this.content = normalized.replaceAll("(\\[\\d+\\]|<\\d+>)", "");
+        this.content = normalized
+                .replaceAll("(\\[\\d+\\]=)", "=")
+                .replaceAll("<\\d+>", "");
     }
 
     public List<Token> tokenize() {
@@ -28,49 +39,64 @@ public class Lexer {
         while (cursor < content.length()) {
 
             char ch = content.charAt(cursor);
-            TokenType candidate = TokenType.getType(ch);
+            TokenType currToken = TokenType.getType(ch);
+
+            // '[' counts as LBRACKET only after EQUAL and if we aren't building multichar token,
+            // ']' counts as RBRACKET only after RBRACE or RBRACKET.
+            boolean nonLBracket = currToken == TokenType.LBRACKET && (lastGrammarToken != TokenType.EQUAL || startIdx != -1);
+            boolean nonRBracket = currToken == TokenType.RBRACKET && lastGrammarToken != TokenType.RBRACE && lastGrammarToken != TokenType.LBRACKET;
+            if (nonLBracket || nonRBracket)
+                currToken = TokenType.UNRESOLVED;
 
             // Start of multi-character token
-            if (candidate == TokenType.UNRESOLVED && startIdx == -1) {
+            if (currToken == TokenType.UNRESOLVED && startIdx == -1) {
                 startIdx = cursor;
                 tokenLine = line;
                 tokenCol = col;
             }
 
             // End of multi-character token
-            else if (candidate != TokenType.UNKNOWN
-                    && candidate != TokenType.UNRESOLVED
-                    && startIdx >= 0) {
+            else if (TokenType.isKnown(currToken) && startIdx >= 0) {
 
                 String lexeme = getLexeme();
                 startIdx = -1;
+                TokenType multichar = (currToken == TokenType.EQUAL) ? TokenType.IDENTIFIER : TokenType.VALUE;
 
-                TokenType keyOrVal = (candidate == TokenType.EQUAL) ? TokenType.IDENTIFIER : TokenType.VALUE;
-                // detect type of value
-                if(keyOrVal == TokenType.VALUE){
-                    if(lexeme.contains("...")) {
-                        lastGrammarToken = keyOrVal = TokenType.MULTILINE;
+                boolean eol = currToken == TokenType.EOL;
+
+                switch (lastGrammarToken) {
+                    case UNKNOWN, LBRACE: {
+                        if (eol) multichar = TokenType.OBJNAME;
+                        break;
                     }
-                    else if(lastGrammarToken == TokenType.LBRACE || lastGrammarToken == TokenType.UNKNOWN){
-                        keyOrVal = TokenType.OBJNAME;
+                    case EQUAL: {
+                        if (lexeme.equals("...")) multichar = TokenType.MULTILINE;
+                        else if (eol) multichar = TokenType.VALUE;
+                        break;
                     }
-                    else if(lastGrammarToken != TokenType.EQUAL)
-                        keyOrVal = TokenType.LINE;
-                    else
-                        lastGrammarToken = TokenType.VALUE;
+                    case MULTILINE, LINE: {
+                        if (eol) multichar = TokenType.LINE;
+                    }
                 }
-                result.add(new Token(keyOrVal, lexeme, tokenLine, tokenCol));
+                // any VALUE without assignment is NOISE
+                if (multichar == TokenType.VALUE && lastGrammarToken != TokenType.EQUAL) {
+                    multichar = TokenType.NOISE;
+                    if (!withNoise) continue;
+                }
+
+                result.add(new Token(multichar, lexeme, tokenLine, tokenCol));
+                lastGrammarToken = multichar;
             }
 
             // Single-character token
-            if (TokenType.isValid(candidate)) {
+            if (TokenType.isKnown(currToken)) {
                 // handling absent values
-                if(lastGrammarToken == TokenType.EQUAL && candidate == TokenType.ENDLINE)
-                    result.add(new Token(TokenType.VALUE,"null", line, col));
+                if (lastGrammarToken == TokenType.EQUAL && currToken == TokenType.EOL)
+                    result.add(new Token(TokenType.VALUE, "null", line, col));
 
-                if(candidate!=TokenType.ENDLINE) {
-                    result.add(new Token(candidate, line, col));
-                    lastGrammarToken = candidate;
+                if (currToken != TokenType.EOL) {
+                    result.add(new Token(currToken, line, col));
+                    lastGrammarToken = currToken;
                 }
 
             }

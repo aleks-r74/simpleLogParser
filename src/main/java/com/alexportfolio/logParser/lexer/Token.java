@@ -21,7 +21,7 @@ public class Token {
             case RBRACE -> "}";
             case LBRACKET -> "[";
             case RBRACKET -> "]";
-            case ENDLINE -> "\\n";
+            case EOL -> "\\n";
             case EOF -> "END";
             default -> throw new IllegalArgumentException("No description for token %s".formatted(type.toString()));
         };

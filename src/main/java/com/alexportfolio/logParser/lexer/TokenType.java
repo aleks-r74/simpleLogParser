@@ -1,10 +1,10 @@
 package com.alexportfolio.logParser.lexer;
 
 public enum TokenType {
-    IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, ENDLINE, MULTILINE, LINE, OBJNAME, EOF, UNRESOLVED, UNKNOWN;
-    public static boolean isValid(TokenType t) {
-        if (t != null && t != TokenType.UNRESOLVED && t != TokenType.UNKNOWN) return true;
-        return false;
+    IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, EOL, MULTILINE, LINE, OBJNAME, EOF, UNRESOLVED, UNKNOWN, NOISE;
+    public static boolean isKnown(TokenType t) {
+        if( t == null || t == TokenType.UNKNOWN || t == TokenType.UNRESOLVED ) return false;
+        return true;
     }
 
     public static TokenType getType(char c) {
@@ -14,7 +14,7 @@ public enum TokenType {
             case '}' -> TokenType.RBRACE;
             case '[' -> TokenType.LBRACKET;
             case ']' -> TokenType.RBRACKET;
-            case '\n', '\r' -> TokenType.ENDLINE;
+            case '\n', '\r' -> TokenType.EOL;
             default -> {
                 if(Character.isWhitespace(c)) yield UNKNOWN;
                 yield UNRESOLVED;
