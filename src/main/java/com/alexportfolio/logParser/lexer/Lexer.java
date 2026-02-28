@@ -9,7 +9,10 @@ public class Lexer {
     private boolean withNoise = false;
     private int cursor = 0;
     private int startIdx = -1;
+
     private TokenType lastGrammarToken = TokenType.UNKNOWN;
+    private QuoteState quoteState = new QuoteState();
+
     private final List<Token> result = new ArrayList<>();
 
     private int line = 1, col = 1;
@@ -39,7 +42,12 @@ public class Lexer {
         while (cursor < content.length()) {
 
             char ch = content.charAt(cursor);
-            TokenType currToken = TokenType.getType(ch);
+
+            TokenType currToken;
+            if(quoteState.inQuotes(ch))
+                currToken = TokenType.UNRESOLVED;
+            else
+                currToken = TokenType.getType(ch);
 
             // '[' counts as LBRACKET only after EQUAL and if we aren't building multichar token,
             // ']' counts as RBRACKET only after RBRACE or RBRACKET.
@@ -121,6 +129,17 @@ public class Lexer {
         int end = val.length();
         if (val.startsWith("\"")) start++;
         if (val.endsWith("\"")) end--;
-        return val.substring(start, end).translateEscapes();
+        return val.substring(start, end);
+    }
+
+    private static class QuoteState {
+        private boolean inside = false;
+        private char prevCh = 0;
+
+        boolean inQuotes(char ch) {
+            if (ch == '"' && prevCh != '\\') inside = !inside;
+            prevCh = ch;
+            return inside;
+        }
     }
 }
