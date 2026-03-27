@@ -11,7 +11,7 @@ ObjectName<1>
         }
 		{
 			ObjectName<12>
-			key99="blabla"
+			key99=blabla
 			key88={
 			        ObjectName<121>
 			        key888="8[8]{}==\"=8"

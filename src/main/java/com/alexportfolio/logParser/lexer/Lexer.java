@@ -74,7 +74,7 @@ public class Lexer {
 
                 switch (lastGrammarToken) {
                     case UNKNOWN, LBRACE: {
-                        if (eol) multichar = TokenType.OBJNAME;
+                        if (eol) multichar = TokenType.OBJTYPE;
                         break;
                     }
                     case EQUAL: {

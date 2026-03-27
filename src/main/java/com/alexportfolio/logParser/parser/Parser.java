@@ -17,8 +17,8 @@ public final class Parser {
 
     public ObjectNode parseDocument() {
         ObjectNode node = new ObjectNode();
-        Token first = consume(TokenType.OBJNAME);
-        node.name = first.lexeme;
+        Token first = consume(TokenType.OBJTYPE);
+        node.type = first.lexeme;
         while(!isAtEnd()) {
             parseKeyValueInto(node);
         }
@@ -45,7 +45,7 @@ public final class Parser {
     private ObjectNode parseObject() {
         consume(TokenType.LBRACE);
         ObjectNode objNode = new ObjectNode();
-        objNode.name = consume(TokenType.OBJNAME).lexeme;
+        objNode.type = consume(TokenType.OBJTYPE).lexeme;
         while (!isAtEnd() && peek().type != TokenType.RBRACE) {
             parseKeyValueInto(objNode);
         }

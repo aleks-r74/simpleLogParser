@@ -45,7 +45,7 @@ public class Main {
      */
     private static LinkedHashMap<String, Object> nodeConverter(ObjectNode in){
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
-        result.put("name", in.name);
+        result.put("type", in.type);
         in.fields.forEach((k,v)->{
             if (v instanceof StringNode sn) result.put(k, sn.value);
             if (v instanceof MultilineNode mn) result.put(k, mn.lines);

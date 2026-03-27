@@ -2,7 +2,7 @@ package com.alexportfolio.logParser.lexer;
 
 public enum TokenType {
     EOL,UNRESOLVED, UNKNOWN, // internal
-    IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, MULTILINE, LINE, OBJNAME, EOF, NOISE; // grammar tokens
+    IDENTIFIER, EQUAL, VALUE, LBRACE, RBRACE, LBRACKET, RBRACKET, MULTILINE, LINE, OBJTYPE, EOF, NOISE; // grammar tokens
 
     public static boolean isKnown(TokenType t) {
         if( t == null || t == TokenType.UNKNOWN || t == TokenType.UNRESOLVED ) return false;
