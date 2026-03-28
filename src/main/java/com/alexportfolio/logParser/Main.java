@@ -45,14 +45,14 @@ public class Main {
      */
     private static LinkedHashMap<String, Object> nodeConverter(ObjectNode in){
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
-        result.put("type", in.type);
-        in.fields.forEach((k,v)->{
-            if (v instanceof StringNode sn) result.put(k, sn.value);
-            if (v instanceof MultilineNode mn) result.put(k, mn.lines);
+        result.put("type", in.getType());
+        in.getFields().forEach((k,v)->{
+            if (v instanceof StringNode sn) result.put(k, sn.value());
+            if (v instanceof MultilineNode mn) result.put(k, mn.lines());
             if (v instanceof ObjectNode on) result.put(k, nodeConverter(on));
             if (v instanceof ArrayNode an) {
                 List<LinkedHashMap<String, Object>> arr = new ArrayList<>();
-                an.elements.forEach(arrObj->arr.add(nodeConverter(arrObj)));
+                an.elements().forEach(arrObj->arr.add(nodeConverter(arrObj)));
                 result.put(k, arr);
             }
         });

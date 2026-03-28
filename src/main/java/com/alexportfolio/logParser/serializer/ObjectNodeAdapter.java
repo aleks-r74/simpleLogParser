@@ -9,21 +9,21 @@ public class ObjectNodeAdapter implements JsonSerializer<ObjectNode> {
     @Override
     public JsonElement serialize(ObjectNode src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject obj = new JsonObject();
-        obj.addProperty("name", src.type); // keep name
+        obj.addProperty("name", src.getType()); // keep name
 
-        for (var entry : src.fields.entrySet()) {
+        for (var entry : src.getFields().entrySet()) {
             String key = entry.getKey();
             Node value = entry.getValue();
 
             // Serialize Node differently depending on type
             if (value instanceof StringNode sn) {
-                obj.addProperty(key, sn.value);
+                obj.addProperty(key, sn.value());
             } else if (value instanceof MultilineNode mn) {
                 JsonArray arr = new JsonArray();
-                mn.lines.forEach(arr::add);
+                mn.lines().forEach(arr::add);
                 obj.add(key, arr);
             } else if (value instanceof ArrayNode an) {
-                obj.add(key, context.serialize(an.elements));
+                obj.add(key, context.serialize(an.elements()));
             } else if (value instanceof ObjectNode on) {
                 obj.add(key, context.serialize(on));
             }

@@ -16,9 +16,9 @@ public final class Parser {
     }
 
     public ObjectNode parseDocument() {
-        ObjectNode node = new ObjectNode();
         Token first = consume(TokenType.OBJTYPE);
-        node.type = first.lexeme;
+        String type = first.lexeme;
+        ObjectNode node = new ObjectNode(type);
         while(!isAtEnd()) {
             parseKeyValueInto(node);
         }
@@ -29,7 +29,7 @@ public final class Parser {
         Token t = consume(TokenType.IDENTIFIER);
         String key = t.lexeme;
         consume(TokenType.EQUAL);
-        target.fields.put(key, parseValue());
+        target.getFields().put(key, parseValue());
     }
 
     private Node parseValue() {
@@ -44,8 +44,8 @@ public final class Parser {
 
     private ObjectNode parseObject() {
         consume(TokenType.LBRACE);
-        ObjectNode objNode = new ObjectNode();
-        objNode.type = consume(TokenType.OBJTYPE).lexeme;
+        String type = consume(TokenType.OBJTYPE).lexeme;
+        ObjectNode objNode = new ObjectNode(type);
         while (!isAtEnd() && peek().type != TokenType.RBRACE) {
             parseKeyValueInto(objNode);
         }
@@ -55,27 +55,25 @@ public final class Parser {
 
     private ArrayNode parseArray() {
         consume(TokenType.LBRACKET);
-        ArrayNode arrNode = new ArrayNode();
+        var arrNodeBldr = ArrayNode.Builder.builder();
         while(peek().type != TokenType.RBRACKET){
-            arrNode.elements.add(parseObject());
+            arrNodeBldr.add(parseObject());
         }
         consume(TokenType.RBRACKET);
-        return arrNode;
+        return arrNodeBldr.build();
     }
 
     private StringNode parseString() {
-        StringNode strNode = new StringNode();
-        strNode.value = consume(TokenType.VALUE).lexeme;
-        return strNode;
+        var strValue = consume(TokenType.VALUE).lexeme;
+        return new StringNode(strValue);
     }
 
     private MultilineNode parseMultiline() {
         consume(TokenType.MULTILINE);
-        MultilineNode linesNode = new MultilineNode();
-        while(peek().type == TokenType.LINE) {
-            linesNode.lines.add(advance().lexeme);
-        }
-        return linesNode;
+        var multilineNodeBldr = MultilineNode.Builder.builder();
+        while(peek().type == TokenType.LINE)
+            multilineNodeBldr.addLine(advance().lexeme);
+        return multilineNodeBldr.build();
     }
 
     private Token peek() {
