@@ -3,76 +3,45 @@ package com.alexportfolio.logParser;
 import com.alexportfolio.logParser.lexer.Lexer;
 import com.alexportfolio.logParser.lexer.Token;
 import com.alexportfolio.logParser.parser.Parser;
-import com.alexportfolio.logParser.parser.Referencer;
-import com.alexportfolio.logParser.parser.node.*;
-import com.alexportfolio.logParser.serializer.ObjectNodeAdapter;
-import com.google.gson.Gson;
+import com.alexportfolio.logParser.transform.Referencer;
+import com.alexportfolio.logParser.parser.model.*;
+import com.alexportfolio.logParser.transform.TreeToMapConverter;
 import com.google.gson.GsonBuilder;
 
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
         String logs = Files.readString(Path.of(".\\test.log"));
+        // 1. Create tokens
         Lexer lexer = new Lexer(logs);
         List<Token> tokens = lexer.tokenize();
         tokens.forEach(System.out::println);
 
+        // 2. Create the tree
         Parser parser = new Parser(tokens);
         ObjectNode root = parser.parseDocument();
 
-        // 0. Create references
+        // 3. Create references
         Referencer referencer = new Referencer();
         referencer.findRefs(root, "timestamp");
-        referencer.collapse(root);
-        // 1. convert to POJO using gson
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(ObjectNode.class, new ObjectNodeAdapter())
-                .setPrettyPrinting()
-                .create();
-//        String json = gson.toJson(root);
-//        System.out.println(json);
+        referencer.collapse(root); // if collapsed, only reference and type preserved in duplicate nodes
 
         System.out.println("_".repeat(20));
 
-        // 2. convert to POJO using custom method
-        var pojo = nodeConverter((ObjectNode) root);
-        gson = new GsonBuilder().setPrettyPrinting().create();
+        // 4. convert to POJO using custom method
+        var pojo = TreeToMapConverter.nodeConverter(root);
+
+        // 5. convert to JSON and print
+        var gson = new GsonBuilder().setPrettyPrinting().create();
         System.out.println(gson.toJson(pojo));
 
     }
 
-    /**
-     * converts Nodes to real pojo Map<String, Object> where Object is String, List<String> or another Map<String, Object>
-     * @param in
-     * @return
-     */
-    private static LinkedHashMap<String, Object> nodeConverter(ObjectNode in){
-        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
-        result.put("type", in.getType());
-        in.getFields().forEach((k,v)->{
-            if (v instanceof StringNode sn) result.put(k, sn.value());
-            if (v instanceof MultilineNode mn) result.put(k, mn.lines());
-            if (v instanceof ObjectNode on) result.put(k, nodeConverter(on));
-            if (v instanceof ArrayNode an) {
-                List<LinkedHashMap<String, Object>> arr = new ArrayList<>();
-                for(var arrItem: an.elements())
-                    if(arrItem instanceof ObjectNode arrObjNoden)
-                        arr.add(nodeConverter(arrObjNoden));
-                    else if(arrItem instanceof RefNode arrObjRef)
-                        arr.add(new LinkedHashMap<>(arrObjRef.asMap()));
 
-                result.put(k, arr);
-            }
-            if (v instanceof RefNode rn) result.put(k, rn);
-        });
-        return result;
-    }
 }

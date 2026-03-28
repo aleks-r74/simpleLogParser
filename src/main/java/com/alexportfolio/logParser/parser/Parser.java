@@ -2,7 +2,7 @@ package com.alexportfolio.logParser.parser;
 
 import com.alexportfolio.logParser.lexer.Token;
 import com.alexportfolio.logParser.lexer.TokenType;
-import com.alexportfolio.logParser.parser.node.*;
+import com.alexportfolio.logParser.parser.model.*;
 
 import java.util.List;
 
@@ -18,18 +18,18 @@ public final class Parser {
     public ObjectNode parseDocument() {
         Token first = consume(TokenType.OBJTYPE);
         String type = first.lexeme;
-        ObjectNode node = new ObjectNode(type);
+        var onBuilder = ObjectNode.Builder.builder().type(type);
         while(!isAtEnd()) {
-            parseKeyValueInto(node);
+            parseKeyValueInto(onBuilder);
         }
-        return node;
+        return onBuilder.build();
     }
 
-    private void parseKeyValueInto(ObjectNode target) {
+    private void parseKeyValueInto(ObjectNode.Builder onBuilder) {
         Token t = consume(TokenType.IDENTIFIER);
         String key = t.lexeme;
         consume(TokenType.EQUAL);
-        target.getFields().put(key, parseValue());
+        onBuilder.addField(key, parseValue());
     }
 
     private Node parseValue() {
@@ -45,22 +45,22 @@ public final class Parser {
     private ObjectNode parseObject() {
         consume(TokenType.LBRACE);
         String type = consume(TokenType.OBJTYPE).lexeme;
-        ObjectNode objNode = new ObjectNode(type);
+        var onBuilder = ObjectNode.Builder.builder().type(type);
         while (!isAtEnd() && peek().type != TokenType.RBRACE) {
-            parseKeyValueInto(objNode);
+            parseKeyValueInto(onBuilder);
         }
         consume(TokenType.RBRACE);
-        return objNode;
+        return onBuilder.build();
     }
 
     private ArrayNode parseArray() {
         consume(TokenType.LBRACKET);
-        var arrNodeBldr = ArrayNode.Builder.builder();
+        var anBuilder = ArrayNode.Builder.builder();
         while(peek().type != TokenType.RBRACKET){
-            arrNodeBldr.add(parseObject());
+            anBuilder.add(parseObject());
         }
         consume(TokenType.RBRACKET);
-        return arrNodeBldr.build();
+        return anBuilder.build();
     }
 
     private StringNode parseString() {
@@ -70,10 +70,10 @@ public final class Parser {
 
     private MultilineNode parseMultiline() {
         consume(TokenType.MULTILINE);
-        var multilineNodeBldr = MultilineNode.Builder.builder();
+        var mlnBuilder = MultilineNode.Builder.builder();
         while(peek().type == TokenType.LINE)
-            multilineNodeBldr.addLine(advance().lexeme);
-        return multilineNodeBldr.build();
+            mlnBuilder.addLine(advance().lexeme);
+        return mlnBuilder.build();
     }
 
     private Token peek() {

@@ -1,0 +1,48 @@
+package com.alexportfolio.logParser.transform;
+
+import com.alexportfolio.logParser.parser.model.*;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+public class TreeToMapConverter {
+    /**
+     * converts Nodes to Map<String, Object> where Object is String, List<String> or another Map<String, Object>
+     * @param rootNode
+     * @return
+     */
+    public static LinkedHashMap<String, Object> nodeConverter(ObjectNode rootNode){
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        result.put("type", rootNode.getType());
+        rootNode.getFields().forEach((k,v)->{
+            if (v instanceof RefNode rn) result.put(k, rn);
+            if (v instanceof StringNode sn) result.put(k, sn.value());
+            if (v instanceof MultilineNode mn) result.put(k, mn.lines());
+
+            if (v instanceof ObjectNode on) {
+                var map = new LinkedHashMap<String, Object>();
+                on.getRef().ifPresent(ref-> map.put("ref", ref));
+                map.putAll(nodeConverter(on));
+                result.put(k, map);
+            }
+
+            if (v instanceof ArrayNode an) {
+                List<LinkedHashMap<String, Object>> arr = new ArrayList<>();
+                for(var arrItem: an.elements())
+                    if(arrItem instanceof ObjectNode arrObjNoden) {
+                        var map = new LinkedHashMap<String, Object>();
+                        arrObjNoden.getRef().ifPresent(ref-> map.put("ref", ref));
+                        map.putAll(nodeConverter(arrObjNoden));
+                        arr.add(map);
+                    }
+                    else if(arrItem instanceof RefNode arrObjRef)
+                        arr.add(new LinkedHashMap<>(arrObjRef.asMap()));
+
+                result.put(k, arr);
+            }
+
+        });
+        return result;
+    }
+}

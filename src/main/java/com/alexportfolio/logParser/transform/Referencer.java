@@ -1,6 +1,6 @@
-package com.alexportfolio.logParser.parser;
+package com.alexportfolio.logParser.transform;
 
-import com.alexportfolio.logParser.parser.node.*;
+import com.alexportfolio.logParser.parser.model.*;
 
 import java.util.*;
 

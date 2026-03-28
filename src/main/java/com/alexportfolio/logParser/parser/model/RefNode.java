@@ -1,4 +1,4 @@
-package com.alexportfolio.logParser.parser.node;
+package com.alexportfolio.logParser.parser.model;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
