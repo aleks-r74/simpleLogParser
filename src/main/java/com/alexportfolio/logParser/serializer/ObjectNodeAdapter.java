@@ -9,9 +9,9 @@ public class ObjectNodeAdapter implements JsonSerializer<ObjectNode> {
     @Override
     public JsonElement serialize(ObjectNode src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject obj = new JsonObject();
-        obj.addProperty("name", src.getType()); // keep name
+        obj.addProperty("name", src.type()); // keep name
 
-        for (var entry : src.getFields().entrySet()) {
+        for (var entry : src.fields().entrySet()) {
             String key = entry.getKey();
             Node value = entry.getValue();
 

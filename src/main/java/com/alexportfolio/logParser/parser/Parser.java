@@ -16,20 +16,19 @@ public final class Parser {
     }
 
     public ObjectNode parseDocument() {
-        Token first = consume(TokenType.OBJTYPE);
-        String type = first.lexeme;
-        ObjectNode node = new ObjectNode(type);
+        String type = consume(TokenType.OBJTYPE).lexeme;
+        var onBuilder = ObjectNode.Builder.builder()
+                .type(type);
         while(!isAtEnd()) {
-            parseKeyValueInto(node);
+            parseKeyValueInto(onBuilder);
         }
-        return node;
+        return onBuilder.build();
     }
 
-    private void parseKeyValueInto(ObjectNode target) {
-        Token t = consume(TokenType.IDENTIFIER);
-        String key = t.lexeme;
+    private void parseKeyValueInto(ObjectNode.Builder onBuilder) {
+        String key = consume(TokenType.IDENTIFIER).lexeme;
         consume(TokenType.EQUAL);
-        target.getFields().put(key, parseValue());
+        onBuilder.addField(key, parseValue());
     }
 
     private Node parseValue() {
@@ -45,12 +44,13 @@ public final class Parser {
     private ObjectNode parseObject() {
         consume(TokenType.LBRACE);
         String type = consume(TokenType.OBJTYPE).lexeme;
-        ObjectNode objNode = new ObjectNode(type);
+        var onBuilder = ObjectNode.Builder.builder()
+                .type(type);
         while (!isAtEnd() && peek().type != TokenType.RBRACE) {
-            parseKeyValueInto(objNode);
+            parseKeyValueInto(onBuilder);
         }
         consume(TokenType.RBRACE);
-        return objNode;
+        return onBuilder.build();
     }
 
     private ArrayNode parseArray() {
