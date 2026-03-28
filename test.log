@@ -1,5 +1,5 @@
 ObjectName<1>
-	key1="string value"
+	key1="string value can have any chars {}[]<>"
 	key2[2]=[
         {
                 ObjectName<11>
@@ -18,7 +18,7 @@ ObjectName<1>
                 }
 		}
 	]
-	.[.This Line should be noise.].
+	.[[[.This Line should be noise.].
 	key3={
 		SubObjectName<12>
 		key4=
@@ -30,6 +30,44 @@ ObjectName<1>
 	line 2 also can have them []
 	[]line3 is not exeption!
 
-	key5="lastvalue"
+	key5={
+		SubObjectName<12>
+		key4=
+		key5="[fff]"
+		key6=
+	}
 
-8746598745967a[]and this should be noise]a
+    key6={
+        MultiNodeType<5>
+    	keyA={
+    		SubObjectName<12>
+    		key4=
+    		key5="[fff]"
+    		key6=
+    	}
+        keyB={
+            SubObjectName<12>
+            key4=
+            key5="[fff]"
+            key6=
+        }
+    }
+
+    key7={
+        MultiNodeType<5>
+    	keyA={
+    		SubObjectName<12>
+    		key4=
+    		key5="[fff]"
+    		key6=
+    	}
+        keyB={
+            SubObjectName<12>
+            key4=
+            key5="[fff]"
+            key6=
+        }
+    }
+    key=9
+    ]]]]]]]]]]
+[.............]

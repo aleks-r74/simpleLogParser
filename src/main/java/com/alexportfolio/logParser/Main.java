@@ -30,8 +30,8 @@ public class Main {
 
         // 0. Create references
         Referencer referencer = new Referencer();
-        referencer.findRefs(root, "root");
-        referencer.reference(root);
+        referencer.findRefs(root, "timestamp");
+        referencer.collapse(root);
         // 1. convert to POJO using gson
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(ObjectNode.class, new ObjectNodeAdapter())
@@ -63,9 +63,15 @@ public class Main {
             if (v instanceof ObjectNode on) result.put(k, nodeConverter(on));
             if (v instanceof ArrayNode an) {
                 List<LinkedHashMap<String, Object>> arr = new ArrayList<>();
-                an.elements().forEach(arrObj->arr.add(nodeConverter(arrObj)));
+                for(var arrItem: an.elements())
+                    if(arrItem instanceof ObjectNode arrObjNoden)
+                        arr.add(nodeConverter(arrObjNoden));
+                    else if(arrItem instanceof RefNode arrObjRef)
+                        arr.add(new LinkedHashMap<>(arrObjRef.asMap()));
+
                 result.put(k, arr);
             }
+            if (v instanceof RefNode rn) result.put(k, rn);
         });
         return result;
     }

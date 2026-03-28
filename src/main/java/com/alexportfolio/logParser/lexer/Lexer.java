@@ -38,7 +38,7 @@ public class Lexer {
     }
 
     public List<Token> tokenize() {
-
+        int openBrackets = 0; // for noise removal
         while (cursor < content.length()) {
 
             char ch = content.charAt(cursor);
@@ -50,9 +50,15 @@ public class Lexer {
                 currToken = TokenType.getType(ch);
 
             // '[' counts as LBRACKET only after EQUAL and if we aren't building multichar token,
-            // ']' counts as RBRACKET only after RBRACE or RBRACKET.
             boolean nonLBracket = currToken == TokenType.LBRACKET && (lastGrammarToken != TokenType.EQUAL || startIdx != -1);
-            boolean nonRBracket = currToken == TokenType.RBRACKET && lastGrammarToken != TokenType.RBRACE && lastGrammarToken != TokenType.LBRACKET;
+            if(currToken == TokenType.LBRACKET  && !nonLBracket)
+                openBrackets++;
+
+            // ']' counts as RBRACKET only when openBrackets > 0
+            boolean nonRBracket = openBrackets == 0 && currToken == TokenType.RBRACKET;
+            if(currToken == TokenType.RBRACKET && openBrackets>0 && !nonRBracket)
+                openBrackets--;
+
             if (nonLBracket || nonRBracket)
                 currToken = TokenType.UNRESOLVED;
 
