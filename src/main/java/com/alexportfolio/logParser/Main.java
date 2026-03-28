@@ -3,6 +3,7 @@ package com.alexportfolio.logParser;
 import com.alexportfolio.logParser.lexer.Lexer;
 import com.alexportfolio.logParser.lexer.Token;
 import com.alexportfolio.logParser.parser.Parser;
+import com.alexportfolio.logParser.parser.Referencer;
 import com.alexportfolio.logParser.parser.node.*;
 import com.alexportfolio.logParser.serializer.ObjectNodeAdapter;
 import com.google.gson.Gson;
@@ -23,19 +24,29 @@ public class Main {
         Lexer lexer = new Lexer(logs);
         List<Token> tokens = lexer.tokenize();
         tokens.forEach(System.out::println);
+
         Parser parser = new Parser(tokens);
-        Node root = parser.parseDocument();
+        ObjectNode root = parser.parseDocument();
+
+        // 0. Create references
+        Referencer referencer = new Referencer();
+        referencer.findRefs(root, "root");
+        referencer.reference(root);
+        // 1. convert to POJO using gson
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(ObjectNode.class, new ObjectNodeAdapter())
                 .setPrettyPrinting()
                 .create();
-        String json = gson.toJson(root); // rootNode is your ObjectNode
-        System.out.println(json);
+//        String json = gson.toJson(root);
+//        System.out.println(json);
 
         System.out.println("_".repeat(20));
+
+        // 2. convert to POJO using custom method
         var pojo = nodeConverter((ObjectNode) root);
         gson = new GsonBuilder().setPrettyPrinting().create();
         System.out.println(gson.toJson(pojo));
+
     }
 
     /**

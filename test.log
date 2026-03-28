@@ -10,12 +10,12 @@ ObjectName<1>
                 }
         }
 		{
-			ObjectName<12>
-			key99=blabla
-			key88={
-			        ObjectName<121>
-			        key888="8[8]{}==\"=8"
-			}
+                ObjectName<11>
+                key99="blabla\""
+                key88={
+                        ObjectName<111>
+                        key888="888[]"
+                }
 		}
 	]
 	.[.This Line should be noise.].

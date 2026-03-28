@@ -1,4 +1,7 @@
 package com.alexportfolio.logParser.parser.node;
 
-public record RefNode(String ref) implements Node{
+public class RefNode extends ObjectNode{
+    public RefNode(String ref) {
+        super(ref);
+    }
 }

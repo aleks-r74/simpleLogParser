@@ -3,11 +3,12 @@ package com.alexportfolio.logParser.parser.node;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
-public final class ObjectNode implements Node {
+public non-sealed class ObjectNode implements Node, ObjectNodeInterface {
     private final String type;
     private final Map<String, Node> fields = new LinkedHashMap<>();
-    private String ref;
+    private Optional<String> ref = Optional.empty();
 
     public ObjectNode(String type) {
         this.type = type;
@@ -21,11 +22,11 @@ public final class ObjectNode implements Node {
         return fields;
     }
 
-    public String getRef() {
+    public Optional<String> getRef() {
         return ref;
     }
 
-    public void setRef(String ref) {
+    public void setRef(Optional<String> ref) {
         this.ref = ref;
     }
 
