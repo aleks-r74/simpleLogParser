@@ -6,64 +6,78 @@ import java.util.*;
 
 public class Referencer {
     // for long-running processes, these maps need to be cleaned to avoid uncontrollable growth
-    private final Map<ObjectNode, String> nodeRefs = new HashMap<>();
-    private final Map<String, ObjectNode> reverseMap = new HashMap<>();
+    private final Map<ReplaceableNode, String> nodeRefs = new HashMap<>();
+    private final Map<String, ReplaceableNode> reverseMap = new HashMap<>();
+
     /**
-     * Traverses the tree looking for duplicate nodes. Marks nodes as duplicate by using setRef() with the reference from the internal store.
-     * @param on ObjectNode to traverse
-     * @param levelName is used to build the canonical key (reference). The root node can provide a timestamp to help uniquely identify the original node
+     * Traverses the tree and detects duplicate nodes. Duplicate nodes are marked by calling setRef()
+     * with the reference resolved from the internal store.
+     *
+     * @param node the ObjectNode to traverse
+     * @param refId used to build the reference path; for the root node, this may include a timestamp
+     *                  to make the original node uniquely identifiable
+     * @param assignRefToOriginal if true, also assigns a reference to the first occurrence; the original
+     *                            reference name does not end with a dollar sign
      */
-    public void findRefs(ObjectNode on, String levelName){
-        for(Map.Entry<String,Node> entry : on.getFields().entrySet()){
-            Node n = entry.getValue();
-            if(n instanceof ObjectNode innerObj) findRefs(innerObj, "%s:%s.%s".formatted(levelName, on.getType(), entry.getKey()));
-            else if(n instanceof ArrayNode arr)
-                for(int i=0; i<arr.elements().size(); i++) {
-                    ObjectNode arrObj = (ObjectNode) arr.elements().get(i);
-                    findRefs(arrObj,  "%s:%s.%s[%d]".formatted(levelName, on.getType(), entry.getKey(), i));
-                }
+    public void findRefs(Node node, String refId, boolean assignRefToOriginal){
+        if(!(node instanceof ReplaceableNode vNode)) return;
+
+        if(nodeRefs.containsKey(node)) {
+            vNode.setRef(nodeRefs.get(node));
+            return;
         }
-        if(nodeRefs.containsKey(on))
-            on.setRef(nodeRefs.get(on));
-        else {
-            String refKey = "%s$".formatted(levelName);
-            nodeRefs.put(on, refKey);
-            reverseMap.put(refKey, on);
-        }
+
+        vNode.setId(refId);
+
+        // put this node into the storage
+        nodeRefs.put(vNode, refId);
+        reverseMap.put(refId, vNode);
+
+        // explore children
+        if(node instanceof ArrayNode arr)
+            for (int i = 0; i < arr.getElements().size(); i++) {
+                ObjectNode arrItem = (ObjectNode) arr.getElements().get(i);
+                findRefs(arrItem, "%s[%d]".formatted(refId, i), assignRefToOriginal);
+            }
+
+        else if(node instanceof ObjectNode oNode)
+            for(Map.Entry<String,Node> entry : oNode.getFields().entrySet())
+                findRefs(entry.getValue(), "%s.%s.%s".formatted(refId, oNode.getType(), entry.getKey()), assignRefToOriginal);
+
     }
 
     /**
      * Replaces duplicate nodes with RefNodes, collapsing the tree
-     * @param on root element of the tree to collapse
+     * @param stNode root element of the tree to collapse
      */
-    public void collapse(ObjectNode on){
-        for(String fieldName : on.getFields().keySet()) {
-            Node fieldValue = on.getFields().get(fieldName);
-            // check if the field is an Object. Then check if it has a reference, if it is - replace the node with RefNode, otherwise 'dive' in and repeat
-            if (fieldValue instanceof ObjectNode objNode) {
-                if (objNode.getRef() != null)
-                    on.getFields().put(fieldName, new RefNode(objNode.getType(), objNode.getRef()));
-                else collapse(objNode);
-            }
-            // same, but for arrays
-            else if(fieldValue instanceof ArrayNode arrNode){
-                for(int i=0; i<arrNode.elements().size(); i++){
-                    if(!(arrNode.elements().get(i) instanceof ObjectNode arrItem)) continue;
-                    if (arrItem.getRef() != null)
-                        arrNode.elements().set(i, new RefNode(arrItem.getType(), arrItem.getRef()));
-                    else collapse(arrItem);
-                }
+    public ReplaceableNode collapse(ReplaceableNode stNode){
+
+        if (stNode.getRef() != null)
+            return new RefNode(stNode.getType(), stNode.getRef());
+
+        if(stNode instanceof ArrayNode arrNode){
+            var origList = arrNode.getElements();
+            var updList = origList.stream().map(this::collapse).toList();
+            origList.clear();
+            origList.addAll(updList);
+        }
+
+        else if (stNode instanceof ObjectNode objNode) {
+            for(var objEntry : objNode.getFields().entrySet()) {
+                String fieldName = objEntry.getKey();
+                Node fieldValue = objEntry.getValue();
+                if(fieldValue instanceof ReplaceableNode fv)
+                    objNode.getFields().put(fieldName, collapse(fv));
             }
         }
+
+        return stNode;
     }
 
-    public ObjectNode explode(String ref){
+    public ReplaceableNode explode(String ref){
         return reverseMap.get(ref);
     }
 
-    /**
-     * Cleans internal storage
-     */
     public void reset(){
         this.nodeRefs.clear();
         this.reverseMap.clear();

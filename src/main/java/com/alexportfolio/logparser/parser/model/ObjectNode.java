@@ -4,28 +4,41 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public non-sealed class ObjectNode implements Node, ObjectNodeInterface {
+public final class ObjectNode implements ReplaceableNode {
     private final String type;
     private final LinkedHashMap<String, Node> fields;
-    private String ref = null;
+    private String ref;
+    private String id;
 
     private ObjectNode(String type, LinkedHashMap<String, Node> fields) {
         this.type = type;
         this.fields = fields;
     }
-
+    @Override
     public String getType() {
         return type;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     public Map<String, Node> getFields() {
         return fields;
     }
 
+    @Override
     public String getRef() {
         return ref;
     }
 
+    @Override
     public void setRef(String ref) {
         this.ref = ref;
     }

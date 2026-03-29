@@ -5,64 +5,33 @@ SessionRoot<1>
         {
             EventRecord<101>
             eventName="user.login"
-            actor={
-                UserProfile<201>
-                userId="u-7781"
-                displayName="Alex Mercer"
-                role="admin"
-            }
-            device={
-                DeviceInfo<301>
-                os="iOS 18.2"
-                model="iPhone 15 Pro"
-                locale="en_US"
-            }
         }
         {
             EventRecord<101>
             eventName="user.login"
-            actor={
-                UserProfile<201>
-                userId="u-7781"
-                displayName="Alex Mercer"
-                role="admin"
-            }
-            device={
-                DeviceInfo<301>
-                os="iOS 18.2"
-                model="iPhone 15 Pro"
-                locale="en_US"
-            }
-        }
-        {
-            EventRecord<102>
-            eventName="user.logout"
-            actor={
-                UserProfile<201>
-                userId="u-7781"
-                displayName="Alex Mercer"
-                role="admin"
-            }
-            device={
-                DeviceInfo<301>
-                os="iOS 18.2"
-                model="iPhone 15 Pro"
-                locale="en_US"
-            }
+
         }
     ]
-    .[[[.This line should be ignored by the parser if noise is supported.].
-    metadata={
-        RequestMetadata<2>
-        environment="prod"
-        region="us-east-1"
-        correlationId="corr-77[abc]<>"
-    }
+        events1[3] =[
+            {
+                EventRecord<101>
+                eventName="user.login"
+            }
+            {
+                EventRecord<101>
+                eventName="user.login"
+
+            }
+        ]
     description=...
     Payload line one can contain [square brackets]
     Payload line two can contain escaped quote like \"
     []Payload line three is also valid text
 
+    description1=...
+    Payload line one can contain [square brackets]
+    Payload line two can contain escaped quote like \"
+    []Payload line three is also valid text
     customer={
         CustomerRecord<10>
         customerId="C-10001"
@@ -82,184 +51,20 @@ SessionRoot<1>
     }
 
     backupCustomer={
-        CustomerRecord<10>
-        customerId="C-10001"
-        fullName="Maria Johnson"
-        address={
-            PostalAddress<11>
-            street="14 West Road"
-            city="New York"
-            zipCode="10001"
-        }
-        preferences={
-            PreferenceBlock<12>
-            language="en"
-            timezone="America/New_York"
-            notifications="enabled"
-        }
-    }
+                           CustomerRecord<10>
+                           customerId="C-10001"
+                           fullName="Maria Johnson"
+                           address={
+                               PostalAddress<11>
+                               street="14 West Road"
+                               city="New York"
+                               zipCode="10001"
+                           }
+                           preferences={
+                               PreferenceBlock<12>
+                               language="en"
+                               timezone="America/New_York"
+                               notifications="enabled"
+                           }
+                       }
 
-    payment={
-        PaymentInfo<20>
-        method="card"
-        currency="USD"
-        billingAddress={
-            PostalAddress<11>
-            street="14 West Road"
-            city="New York"
-            zipCode="10001"
-        }
-        cardHolder={
-            PersonName<21>
-            firstName="Maria"
-            lastName="Johnson"
-            suffix=
-        }
-    }
-
-    shipping={
-        ShipmentInfo<30>
-        method="express"
-        destination={
-            PostalAddress<11>
-            street="14 West Road"
-            city="New York"
-            zipCode="10001"
-        }
-        recipient={
-            PersonName<21>
-            firstName="Maria"
-            lastName="Johnson"
-            suffix=
-        }
-    }
-
-    containers={
-        ContainerSet<40>
-        primary={
-            NestedContainer<41>
-            childA={
-                SmallObject<50>
-                alpha="A"
-                beta="[B]"
-                gamma=
-            }
-            childB={
-                SmallObject<50>
-                alpha="A"
-                beta="[B]"
-                gamma=
-            }
-        }
-        secondary={
-            NestedContainer<41>
-            childA={
-                SmallObject<50>
-                alpha="A"
-                beta="[B]"
-                gamma=
-            }
-            childB={
-                SmallObject<50>
-                alpha="A"
-                beta="[B]"
-                gamma=
-            }
-        }
-    }
-
-    auditTrail[2]=[
-        {
-            AuditEntry<60>
-            action="create"
-            author={
-                UserProfile<201>
-                userId="u-7781"
-                displayName="Alex Mercer"
-                role="admin"
-            }
-            target={
-                CustomerRecord<10>
-                customerId="C-10001"
-                fullName="Maria Johnson"
-                address={
-                    PostalAddress<11>
-                    street="14 West Road"
-                    city="New York"
-                    zipCode="10001"
-                }
-                preferences={
-                    PreferenceBlock<12>
-                    language="en"
-                    timezone="America/New_York"
-                    notifications="enabled"
-                }
-            }
-        }
-        {
-            AuditEntry<61>
-            action="update"
-            author={
-                UserProfile<201>
-                userId="u-7781"
-                displayName="Alex Mercer"
-                role="admin"
-            }
-            target={
-                CustomerRecord<10>
-                customerId="C-10001"
-                fullName="Maria Johnson"
-                address={
-                    PostalAddress<11>
-                    street="14 West Road"
-                    city="New York"
-                    zipCode="10001"
-                }
-                preferences={
-                    PreferenceBlock<12>
-                    language="en"
-                    timezone="America/New_York"
-                    notifications="enabled"
-                }
-            }
-        }
-    ]
-
-    configA={
-        FeatureConfig<70>
-        flags={
-            FlagBlock<71>
-            featureX="on"
-            featureY="off"
-            featureZ="test"
-        }
-        limits={
-            LimitBlock<72>
-            daily="1000"
-            monthly="25000"
-            burst="50"
-        }
-    }
-
-    configB={
-        FeatureConfig<70>
-        flags={
-            FlagBlock<71>
-            featureX="on"
-            featureY="off"
-            featureZ="test"
-        }
-        limits={
-            LimitBlock<72>
-            daily="1000"
-            monthly="25000"
-            burst="50"
-        }
-    }
-
-    keyFinal="tail value with symbols {}[]<> and escaped quote \" done"
-    keyNumber=9
-
-]]] some noise [[[
-[.......
-......]]

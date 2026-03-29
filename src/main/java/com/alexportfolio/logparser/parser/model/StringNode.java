@@ -1,3 +1,44 @@
 package com.alexportfolio.logparser.parser.model;
 
-public record StringNode(String value) implements Node {}
+import java.util.Objects;
+
+public final class StringNode implements Node {
+    private final String value;
+    private String id;
+
+    public StringNode(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getType() {
+        return "String";
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        StringNode that = (StringNode) object;
+        return value.equals(that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+}

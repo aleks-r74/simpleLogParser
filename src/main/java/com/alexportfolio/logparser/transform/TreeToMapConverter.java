@@ -11,46 +11,54 @@ public class TreeToMapConverter {
     private TreeToMapConverter() {}
 
     /**
-     * converts Nodes to Map<String, Object> where Object is String, List<String> or another Map<String, Object>
-     * @param rootNode the root element of the tree
-     * @return Map representation of the tree
+     * Converts a Node into a plain Java representation suitable for JSON serialization.
+     * Depending on the node type, the result may be a String, a List, or a Map.
+     *
+     * @param node the node to convert
+     * @return a Java representation of the node
+     * @throws IllegalArgumentException if the node is null or has an unsupported type
      */
-    public static Map<String, Object> nodeConverter(ObjectNode rootNode){
-        if(rootNode == null)
-            throw new IllegalArgumentException("rootNode can not be null");
+    public static Object convertNode(Node node) {
+        if (node == null) {
+            throw new IllegalArgumentException("node cannot be null");
+        }
+        if (node instanceof RefNode rn) {
+            return rn.asMap();
+        }
+        if (node instanceof StringNode sn) {
+            return sn.getValue();
+        }
+        if (node instanceof MultilineNode mn) {
+            return mn.getLines();
+        }
+        if (node instanceof ArrayNode an) {
+            return convertArrayNode(an);
+        }
+        if (node instanceof ObjectNode on) {
+            return convertObjectNode(on);
+        }
+        throw new IllegalArgumentException("Unsupported node type: " + node.getClass().getName());
+    }
 
+    private static List<Object> convertArrayNode(ArrayNode node) {
+        List<Object> result = new ArrayList<>();
+        for (var element : node.getElements()) {
+            var map = new LinkedHashMap<String, Object>();
+            Object converted = convertNode(element);
+            if (converted instanceof Map<?, ?> convertedMap) {
+                map.putAll((Map<String, Object>) convertedMap);
+            }
+            result.add(map);
+        }
+        return result;
+    }
+
+    private static Map<String, Object> convertObjectNode(ObjectNode node) {
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
-        result.put("type", rootNode.getType());
-        rootNode.getFields().forEach((k,v)->{
-            if (v instanceof RefNode rn) result.put(k, rn);
-            if (v instanceof StringNode sn) result.put(k, sn.value());
-            if (v instanceof MultilineNode mn) result.put(k, mn.lines());
-
-            if (v instanceof ObjectNode on) {
-                var map = new LinkedHashMap<String, Object>();
-                if(on.getRef() != null)
-                    map.put("ref", on.getRef());
-                map.putAll(nodeConverter(on));
-                result.put(k, map);
-            }
-
-            if (v instanceof ArrayNode an) {
-                List<LinkedHashMap<String, Object>> arr = new ArrayList<>();
-                for(var arrItem: an.elements())
-                    if(arrItem instanceof ObjectNode arrObjNode) {
-                        var map = new LinkedHashMap<String, Object>();
-                        if(arrObjNode.getRef() != null)
-                            map.put("ref", arrObjNode.getRef());
-                        map.putAll(nodeConverter(arrObjNode));
-                        arr.add(map);
-                    }
-                    else if(arrItem instanceof RefNode arrObjRef)
-                        arr.add(new LinkedHashMap<>(arrObjRef.asMap()));
-
-                result.put(k, arr);
-            }
-
-        });
+        if (node.getId() != null)
+            result.put("id", node.getId());
+        result.put("type", node.getType());
+        node.getFields().forEach((key, value) -> result.put(key, convertNode(value)));
         return result;
     }
 }

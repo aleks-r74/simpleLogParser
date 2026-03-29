@@ -29,13 +29,13 @@ public class Main {
 
         // 3. Create references
         Referencer referencer = new Referencer();
-        referencer.findRefs(root, "timestamp");
+        referencer.findRefs(root, "timestamp", true);
         referencer.collapse(root); // if collapsed, only reference and type preserved in the tree
 
         System.out.println("_".repeat(20));
 
         // 4. convert to POJO using custom method
-        var pojo = TreeToMapConverter.nodeConverter(root);
+        var pojo = TreeToMapConverter.convertNode(root);
 
         // 5. convert to JSON and print
         var gson = new GsonBuilder().setPrettyPrinting().create();
@@ -43,10 +43,10 @@ public class Main {
 
         // 6. find Node by reference
         System.out.println("_".repeat(20));
-        String ref = "timestamp:SessionRoot.customer$";
+        String ref = "timestamp:SessionRoot.description:MultiLine$";
         System.out.printf("Reference \"%s\":\n", ref);
-        ObjectNode n = referencer.explode(ref);
-        pojo = TreeToMapConverter.nodeConverter(n);
+        var n = referencer.explode(ref);
+        pojo = TreeToMapConverter.convertNode(n);
         System.out.println(gson.toJson(pojo));
 
         // 7. don't forget to clean the storage when no longer needed:
