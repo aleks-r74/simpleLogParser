@@ -1,4 +1,4 @@
-package com.alexportfolio.logParser.parser.node;
+package com.alexportfolio.logparser.parser.model;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,3 +1,3 @@
-package com.alexportfolio.logParser.parser.node;
+package com.alexportfolio.logparser.parser.model;
 
 public record StringNode(String value) implements Node {}

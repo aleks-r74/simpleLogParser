@@ -1,4 +1,4 @@
-package com.alexportfolio.logParser.lexer;
+package com.alexportfolio.logparser.lexer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,8 @@ public class Lexer {
     private final List<Token> result = new ArrayList<>();
 
     private int line = 1, col = 1;
-    private int tokenLine = 0, tokenCol = 0;
+    private int tokenLine = 0;
+    private int tokenCol = 0;
 
     /**
      * @param input     - input text
@@ -33,12 +34,12 @@ public class Lexer {
             normalized += "\n";
         }
         this.content = normalized
-                .replaceAll("(\\[\\d+\\]=)", "=")
+                .replaceAll("(?<=[A-Za-z])\\[\\d+\\]\\s*=", "=")
                 .replaceAll("<\\d+>", "");
     }
 
     public List<Token> tokenize() {
-
+        int openBrackets = 0; // for noise removal
         while (cursor < content.length()) {
 
             char ch = content.charAt(cursor);
@@ -50,9 +51,15 @@ public class Lexer {
                 currToken = TokenType.getType(ch);
 
             // '[' counts as LBRACKET only after EQUAL and if we aren't building multichar token,
-            // ']' counts as RBRACKET only after RBRACE or RBRACKET.
             boolean nonLBracket = currToken == TokenType.LBRACKET && (lastGrammarToken != TokenType.EQUAL || startIdx != -1);
-            boolean nonRBracket = currToken == TokenType.RBRACKET && lastGrammarToken != TokenType.RBRACE && lastGrammarToken != TokenType.LBRACKET;
+            if(currToken == TokenType.LBRACKET  && !nonLBracket)
+                openBrackets++;
+
+            // ']' counts as RBRACKET only when openBrackets > 0
+            boolean nonRBracket = openBrackets == 0 && currToken == TokenType.RBRACKET;
+            if(currToken == TokenType.RBRACKET && openBrackets>0 && !nonRBracket)
+                openBrackets--;
+
             if (nonLBracket || nonRBracket)
                 currToken = TokenType.UNRESOLVED;
 
