@@ -18,12 +18,12 @@ public class TreeToMapConverter {
      * @return a Java representation of the node
      * @throws IllegalArgumentException if the node is null or has an unsupported type
      */
-    public static Object convertNode(Node node) {
+    public static Object convertNode(Node node, boolean hideMetadata) {
         if (node == null) {
             throw new IllegalArgumentException("node cannot be null");
         }
         if (node instanceof RefNode rn) {
-            return rn.asMap();
+            return rn.metadata();
         }
         if (node instanceof StringNode sn) {
             return sn.getValue();
@@ -32,19 +32,19 @@ public class TreeToMapConverter {
             return mn.getLines();
         }
         if (node instanceof ArrayNode an) {
-            return convertArrayNode(an);
+            return convertArrayNode(an, hideMetadata);
         }
         if (node instanceof ObjectNode on) {
-            return convertObjectNode(on);
+            return convertObjectNode(on, hideMetadata);
         }
         throw new IllegalArgumentException("Unsupported node type: " + node.getClass().getName());
     }
 
-    private static List<Object> convertArrayNode(ArrayNode node) {
+    private static List<Object> convertArrayNode(ArrayNode node, boolean hideMetadata) {
         List<Object> result = new ArrayList<>();
         for (var element : node.getElements()) {
             var map = new LinkedHashMap<String, Object>();
-            Object converted = convertNode(element);
+            Object converted = convertNode(element, hideMetadata);
             if (converted instanceof Map<?, ?> convertedMap) {
                 map.putAll((Map<String, Object>) convertedMap);
             }
@@ -53,12 +53,13 @@ public class TreeToMapConverter {
         return result;
     }
 
-    private static Map<String, Object> convertObjectNode(ObjectNode node) {
+    private static Map<String, Object> convertObjectNode(ObjectNode node, boolean hideMetadata) {
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
-        if (node.getId() != null)
-            result.put("id", node.getId());
+        var metadata = node.metadata();
+        if (!hideMetadata)
+            result.put("metadata", metadata);
         result.put("type", node.getType());
-        node.getFields().forEach((key, value) -> result.put(key, convertNode(value)));
+        node.getFields().forEach((key, value) -> result.put(key, convertNode(value, hideMetadata)));
         return result;
     }
 }

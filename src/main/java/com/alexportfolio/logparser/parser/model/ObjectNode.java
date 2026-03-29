@@ -7,26 +7,16 @@ import java.util.Objects;
 public final class ObjectNode implements ReplaceableNode {
     private final String type;
     private final LinkedHashMap<String, Node> fields;
-    private String ref;
-    private String id;
+    private LinkedHashMap<String, String> metadata;
 
     private ObjectNode(String type, LinkedHashMap<String, Node> fields) {
         this.type = type;
         this.fields = fields;
+        this.metadata = new LinkedHashMap<>();
     }
     @Override
     public String getType() {
         return type;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
     }
 
     public Map<String, Node> getFields() {
@@ -34,13 +24,8 @@ public final class ObjectNode implements ReplaceableNode {
     }
 
     @Override
-    public String getRef() {
-        return ref;
-    }
-
-    @Override
-    public void setRef(String ref) {
-        this.ref = ref;
+    public Map<String, String> metadata() {
+        return metadata;
     }
 
     public static class Builder {

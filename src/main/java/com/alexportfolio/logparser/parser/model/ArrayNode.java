@@ -1,15 +1,19 @@
 package com.alexportfolio.logparser.parser.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class ArrayNode implements ReplaceableNode {
     private List<ReplaceableNode> elements;
-    private String ref;
+    private LinkedHashMap<String, String> metadata;
     private String id;
 
     private ArrayNode(List<ReplaceableNode> elements) {
         this.elements = elements;
+        this.metadata = new LinkedHashMap<>();
     }
 
     public List<ReplaceableNode> getElements() {
@@ -17,30 +21,20 @@ public final class ArrayNode implements ReplaceableNode {
     }
 
     @Override
-    public void setRef(String ref) {
-        this.ref = ref;
-    }
-
-    @Override
-    public String getRef() {
-        return ref;
-    }
-
-    @Override
     public String getType() {
-        if(elements != null && elements.size() > 0)
-            return "Array[%s]".formatted(elements.get(0).getType());
-        return "Array[Empty]";
+        if(elements == null || elements.size() == 0)
+            return "Array[Empty]";
+        String types = elements.stream()
+                .map(Node::getType)
+                .distinct()
+                .collect(Collectors.joining(", "));
+            return "Array[%s]".formatted(types);
+
     }
 
     @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
+    public Map<String, String> metadata() {
+        return metadata;
     }
 
     public static class Builder {

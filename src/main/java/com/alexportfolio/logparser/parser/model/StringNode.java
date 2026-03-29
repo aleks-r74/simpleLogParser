@@ -10,18 +10,8 @@ public final class StringNode implements Node {
         this.value = value;
     }
 
-    @Override
-    public String getId() {
-        return id;
-    }
-
     public String getValue() {
         return value;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
     }
 
     @Override

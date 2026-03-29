@@ -1,30 +1,23 @@
 package com.alexportfolio.logparser.parser.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class MultilineNode implements ReplaceableNode {
     List<String> lines;
-    private String ref;
-    private String id;
+    private LinkedHashMap<String, String> metadata;
 
     private MultilineNode(List<String> lines) {
         this.lines = lines;
+        this.metadata = new LinkedHashMap<>();
     }
 
     public List<String> getLines() {
         return lines;
     }
 
-    @Override
-    public void setRef(String ref) {
-        this.ref = ref;
-    }
-
-    @Override
-    public String getRef() {
-        return ref;
-    }
 
     @Override
     public String getType() {
@@ -32,13 +25,8 @@ public final class MultilineNode implements ReplaceableNode {
     }
 
     @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
+    public Map<String, String> metadata() {
+        return metadata;
     }
 
     public static class Builder{

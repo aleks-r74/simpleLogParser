@@ -1,70 +1,175 @@
 SessionRoot<1>
-    requestId="REQ-2026-03-28-A"
-    source="mobile-app[ios]"
-    events[3] =[
+    requestId="REQ-2026-03-TEST"
+    source="integration-test[all-nodes]"
+
+    events[3]=[
         {
-            EventRecord<101>
-            eventName="user.login"
+            EventRecord<10>
+                eventName="user.login"
+                actor={
+                    UserProfile<20>
+                        userId="u-100"
+                        name="John Doe"
+                }
+                device={
+                    DeviceInfo<30>
+                        os="iOS"
+                        model="iPhone"
+                }
         }
         {
-            EventRecord<101>
-            eventName="user.login"
-
+            EventRecord<10>
+                eventName="user.login"
+                actor={
+                    UserProfile<20>
+                        userId="u-100"
+                        name="John Doe"
+                }
+                device={
+                    DeviceInfo<30>
+                        os="iOS"
+                        model="iPhone"
+                }
+        }
+        {
+            EventRecord<10>
+                eventName="user.logout"
+                actor={
+                    UserProfile<20>
+                        userId="u-100"
+                        name="John Doe"
+                }
+                device={
+                    DeviceInfo<30>
+                        os="iOS"
+                        model="iPhone"
+                }
         }
     ]
-        events1[3] =[
-            {
-                EventRecord<101>
-                eventName="user.login"
-            }
-            {
-                EventRecord<101>
-                eventName="user.login"
 
-            }
-        ]
+    eventArrayWrapper={
+        ArrayWrapper<40>
+            items[3]=[
+                {
+                    EventRecord<10>
+                        eventName="user.login"
+                        actor={
+                            UserProfile<20>
+                                userId="u-100"
+                                name="John Doe"
+                        }
+                        device={
+                            DeviceInfo<30>
+                                os="iOS"
+                                model="iPhone"
+                        }
+                }
+                {
+                    EventRecord<10>
+                        eventName="user.login"
+                        actor={
+                            UserProfile<20>
+                                userId="u-100"
+                                name="John Doe"
+                        }
+                        device={
+                            DeviceInfo<30>
+                                os="iOS"
+                                model="iPhone"
+                        }
+                }
+                {
+                    EventRecord<10>
+                        eventName="user.logout"
+                        actor={
+                            UserProfile<20>
+                                userId="u-100"
+                                name="John Doe"
+                        }
+                        device={
+                            DeviceInfo<30>
+                                os="iOS"
+                                model="iPhone"
+                        }
+                }
+            ]
+    }
+
     description=...
-    Payload line one can contain [square brackets]
-    Payload line two can contain escaped quote like \"
-    []Payload line three is also valid text
+        line one [with brackets]
+        line two with \"escaped quote\"
+        []line three
 
-    description1=...
-    Payload line one can contain [square brackets]
-    Payload line two can contain escaped quote like \"
-    []Payload line three is also valid text
+    descriptionCopy=...
+        line one [with brackets]
+        line two with \"escaped quote\"
+        []line three
+
     customer={
-        CustomerRecord<10>
-        customerId="C-10001"
-        fullName="Maria Johnson"
-        address={
-            PostalAddress<11>
-            street="14 West Road"
-            city="New York"
-            zipCode="10001"
-        }
-        preferences={
-            PreferenceBlock<12>
-            language="en"
-            timezone="America/New_York"
-            notifications="enabled"
-        }
+        CustomerRecord<50>
+            customerId="C-1"
+            name="Alice"
+            address={
+                Address<60>
+                    city="New York"
+                    zip="10001"
+            }
     }
 
     backupCustomer={
-                           CustomerRecord<10>
-                           customerId="C-10001"
-                           fullName="Maria Johnson"
-                           address={
-                               PostalAddress<11>
-                               street="14 West Road"
-                               city="New York"
-                               zipCode="10001"
-                           }
-                           preferences={
-                               PreferenceBlock<12>
-                               language="en"
-                               timezone="America/New_York"
-                               notifications="enabled"
-                           }
-                       }
+        CustomerRecord<50>
+            customerId="C-1"
+            name="Alice"
+            address={
+                Address<60>
+                    city="New York"
+                    zip="10001"
+            }
+    }
 
+    containers={
+        Container<70>
+            primary={
+                Nested<71>
+                    child={
+                        SmallObject<72>
+                            alpha="A"
+                            beta="[B]"
+                    }
+            }
+            secondary={
+                Nested<71>
+                    child={
+                        SmallObject<72>
+                            alpha="A"
+                            beta="[B]"
+                    }
+            }
+    }
+
+    multiBlock={
+        MultiNode<80>
+            partA=...
+                multi line 1
+                multi line 2
+            partB=...
+                multi line 1
+                multi line 2
+    }
+
+    addressBook[2]=[
+        {
+            Address<60>
+                city="New York"
+                zip="10001"
+        }
+        {
+            Address<60>
+                city="New York"
+                zip="10001"
+        }
+    ]
+
+    noise line that should be ignored completely
+    [random noise]
+    ]]] stray symbols

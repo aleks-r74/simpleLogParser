@@ -16,18 +16,16 @@ public class Referencer {
      * @param node the ObjectNode to traverse
      * @param refId used to build the reference path; for the root node, this may include a timestamp
      *                  to make the original node uniquely identifiable
-     * @param assignRefToOriginal if true, also assigns a reference to the first occurrence; the original
-     *                            reference name does not end with a dollar sign
      */
-    public void findRefs(Node node, String refId, boolean assignRefToOriginal){
+    public void findRefs(Node node, String refId){
         if(!(node instanceof ReplaceableNode vNode)) return;
 
         if(nodeRefs.containsKey(node)) {
-            vNode.setRef(nodeRefs.get(node));
+            vNode.metadata().put("ref", nodeRefs.get(node));
             return;
         }
 
-        vNode.setId(refId);
+        vNode.metadata().put("id", refId);
 
         // put this node into the storage
         nodeRefs.put(vNode, refId);
@@ -37,12 +35,12 @@ public class Referencer {
         if(node instanceof ArrayNode arr)
             for (int i = 0; i < arr.getElements().size(); i++) {
                 ObjectNode arrItem = (ObjectNode) arr.getElements().get(i);
-                findRefs(arrItem, "%s[%d]".formatted(refId, i), assignRefToOriginal);
+                findRefs(arrItem, "%s[%d]".formatted(refId, i));
             }
 
         else if(node instanceof ObjectNode oNode)
             for(Map.Entry<String,Node> entry : oNode.getFields().entrySet())
-                findRefs(entry.getValue(), "%s.%s.%s".formatted(refId, oNode.getType(), entry.getKey()), assignRefToOriginal);
+                findRefs(entry.getValue(), "%s.%s".formatted(refId, entry.getKey()));
 
     }
 
@@ -51,9 +49,9 @@ public class Referencer {
      * @param stNode root element of the tree to collapse
      */
     public ReplaceableNode collapse(ReplaceableNode stNode){
-
-        if (stNode.getRef() != null)
-            return new RefNode(stNode.getType(), stNode.getRef());
+        var ref = stNode.metadata().get("ref");
+        if (ref != null)
+            return new RefNode(stNode.getType(), ref);
 
         if(stNode instanceof ArrayNode arrNode){
             var origList = arrNode.getElements();
