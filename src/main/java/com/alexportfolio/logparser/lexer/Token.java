@@ -1,4 +1,4 @@
-package com.alexportfolio.logParser.lexer;
+package com.alexportfolio.logparser.lexer;
 
 public class Token {
         public final TokenType type;

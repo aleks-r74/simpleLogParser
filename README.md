@@ -58,7 +58,7 @@ RootObject<1>
     },
     {
       "type": "ItemObject",
-      "ref": "timestamp:RootObject.items[2][0]$"
+      "ref": "timestamp:RootObject.items[0]$"
     }
   ],
   "notes ": [

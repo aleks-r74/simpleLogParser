@@ -259,5 +259,7 @@ SessionRoot<1>
 
     keyFinal="tail value with symbols {}[]<> and escaped quote \" done"
     keyNumber=9
-    some noise ]]]]]]]]]]
-[.............]
+
+]]] some noise [[[
+[.......
+......]]
