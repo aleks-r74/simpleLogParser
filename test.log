@@ -1,7 +1,7 @@
 SessionRoot<1>
     requestId="REQ-2026-03-28-A"
     source="mobile-app[ios]"
-    events[3]=[
+    events[3] =[
         {
             EventRecord<101>
             eventName="user.login"

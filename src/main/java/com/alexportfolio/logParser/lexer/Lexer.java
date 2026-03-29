@@ -33,7 +33,7 @@ public class Lexer {
             normalized += "\n";
         }
         this.content = normalized
-                .replaceAll("(\\[\\d+\\]=)", "=")
+                .replaceAll("(?<=[A-Za-z])\\[\\d+\\]\\s*=", "=")
                 .replaceAll("<\\d+>", "");
     }
 

@@ -5,14 +5,13 @@ import com.alexportfolio.logParser.parser.model.*;
 import java.util.*;
 
 public class Referencer {
-
+    // for long-running processes, these maps need to be cleaned to avoid uncontrollable growth
     private Map<ObjectNode, String> nodeRefs = new HashMap<>();
-
+    private Map<String, ObjectNode> reverseMap = new HashMap<>();
     /**
      * Traverses the tree looking for duplicate nodes. Marks nodes as duplicate by using setRef() with the reference from the internal store.
      * @param on ObjectNode to traverse
-     * @param levelName is used to build the canonical key (reference). The root node can provide "root" or a timestamp there to help
-     *                  uniquely identify the node
+     * @param levelName is used to build the canonical key (reference). The root node can provide a timestamp to help uniquely identify the original node
      */
     public void findRefs(ObjectNode on, String levelName){
         for(Map.Entry<String,Node> entry : on.getFields().entrySet()){
@@ -30,11 +29,13 @@ public class Referencer {
         else {
             String refKey = "%s$".formatted(levelName);
             nodeRefs.put(on, refKey);
+            reverseMap.put(refKey, on);
         }
     }
 
-    /*
-    Replaces nodes that have the reference set to the respective nodes of type RefNode, collapsing the tree
+    /**
+     * Replaces duplicate nodes with RefNodes, collapsing the tree
+     * @param on
      */
     public void collapse(ObjectNode on){
         for(String fieldName : on.getFields().keySet()) {
@@ -57,4 +58,15 @@ public class Referencer {
         }
     }
 
+    public ObjectNode explode(String ref){
+        return reverseMap.get(ref);
+    }
+
+    /**
+     * Cleans internal storage
+     */
+    public void reset(){
+        this.nodeRefs.clear();
+        this.reverseMap.clear();
+    }
 }

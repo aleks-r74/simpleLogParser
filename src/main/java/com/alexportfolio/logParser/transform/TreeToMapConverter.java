@@ -13,6 +13,9 @@ public class TreeToMapConverter {
      * @return
      */
     public static LinkedHashMap<String, Object> nodeConverter(ObjectNode rootNode){
+        if(rootNode == null)
+            throw new IllegalArgumentException("rootNode can not be null");
+
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         result.put("type", rootNode.getType());
         rootNode.getFields().forEach((k,v)->{

@@ -30,7 +30,7 @@ public class Main {
         // 3. Create references
         Referencer referencer = new Referencer();
         referencer.findRefs(root, "timestamp");
-        referencer.collapse(root); // if collapsed, only reference and type preserved in duplicate nodes
+        referencer.collapse(root); // if collapsed, only reference and type preserved in the tree
 
         System.out.println("_".repeat(20));
 
@@ -40,6 +40,21 @@ public class Main {
         // 5. convert to JSON and print
         var gson = new GsonBuilder().setPrettyPrinting().create();
         System.out.println(gson.toJson(pojo));
+
+        // 6. find Node by reference
+        System.out.println("_".repeat(20));
+        String ref = "timestamp:SessionRoot.customer$";
+        System.out.printf("Reference \"%s\":\n", ref);
+        ObjectNode n = referencer.explode(ref);
+        pojo = TreeToMapConverter.nodeConverter(n);
+        System.out.println(gson.toJson(pojo));
+
+        // 7. don't forget to clean the storage when no longer needed:
+        referencer.reset();
+        System.out.println("_".repeat(20));
+        System.out.printf("Reference \"%s\" after resetting the referencer:\n", ref);
+        if(referencer.explode(ref) == null)
+            System.out.println("Reference not found");
 
     }
 
