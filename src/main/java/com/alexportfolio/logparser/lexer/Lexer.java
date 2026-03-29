@@ -35,7 +35,11 @@ public class Lexer {
             normalized += "\n";
         }
         this.content = normalized
-                .replaceAll("(?<=[A-Za-z])\\[\\d+\\]\\s*=", "=")
+                // remove [digits] suffix + normalize spacing
+                .replaceAll("(?<=[A-Za-z0-9_])\\[\\d+\\]\\s*=", "=")
+                // remove spaces before '=' for field names
+                .replaceAll("(?<=[A-Za-z0-9_])\\s+=", "=")
+                // remove <digits>
                 .replaceAll("<\\d+>", "");
     }
 

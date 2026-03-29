@@ -46,14 +46,14 @@ RootObject<1>
 ```text{15}
 {
   "type": "RootObject",
-  "name ": "example",
+  "name": "example",
   "items": [
     {
       "type": "ItemObject",
-      "id ": "A1",
-      "details ": {
+      "id": "A1",
+      "details": {
         "type": "DetailsObject",
-        "value ": "hello"
+        "value": "hello"
       }
     },
     {
@@ -61,13 +61,13 @@ RootObject<1>
       "ref": "timestamp:RootObject.items[0]$"
     }
   ],
-  "notes ": [
+  "notes": [
     "first line of multiline text",
     "second line of multiline text"
   ],
-  "nested ": {
+  "nested": {
     "type": "ChildObject",
-    "key ": "value"
+    "key": "value"
   }
 }
 ```
