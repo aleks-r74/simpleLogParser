@@ -1,8 +1,11 @@
+Just a string to test if the parser skips items
+[it should identify it as a noise]
+
 SessionRoot<1>
     requestId="REQ-2026-03-TEST"
     source="integration-test[all-nodes]"
 
-    events[3]=[
+    events[3]   = [
         {
             EventRecord<10>
                 eventName="user.login"
@@ -98,12 +101,12 @@ SessionRoot<1>
     description=...
         line one [with brackets]
         line two with \"escaped quote\"
-        []line three
+        ][line three
 
     descriptionCopy=...
         line one [with brackets]
         line two with \"escaped quote\"
-        []line three
+        ][line three
 
     customer={
         CustomerRecord<50>
