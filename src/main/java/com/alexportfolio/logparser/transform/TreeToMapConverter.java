@@ -12,8 +12,8 @@ public class TreeToMapConverter {
 
     /**
      * converts Nodes to Map<String, Object> where Object is String, List<String> or another Map<String, Object>
-     * @param rootNode
-     * @return
+     * @param rootNode the root element of the tree
+     * @return Map representation of the tree
      */
     public static Map<String, Object> nodeConverter(ObjectNode rootNode){
         if(rootNode == null)
@@ -28,7 +28,8 @@ public class TreeToMapConverter {
 
             if (v instanceof ObjectNode on) {
                 var map = new LinkedHashMap<String, Object>();
-                on.getRef().ifPresent(ref-> map.put("ref", ref));
+                if(on.getRef() != null)
+                    map.put("ref", on.getRef());
                 map.putAll(nodeConverter(on));
                 result.put(k, map);
             }
@@ -36,10 +37,11 @@ public class TreeToMapConverter {
             if (v instanceof ArrayNode an) {
                 List<LinkedHashMap<String, Object>> arr = new ArrayList<>();
                 for(var arrItem: an.elements())
-                    if(arrItem instanceof ObjectNode arrObjNoden) {
+                    if(arrItem instanceof ObjectNode arrObjNode) {
                         var map = new LinkedHashMap<String, Object>();
-                        arrObjNoden.getRef().ifPresent(ref-> map.put("ref", ref));
-                        map.putAll(nodeConverter(arrObjNoden));
+                        if(arrObjNode.getRef() != null)
+                            map.put("ref", arrObjNode.getRef());
+                        map.putAll(nodeConverter(arrObjNode));
                         arr.add(map);
                     }
                     else if(arrItem instanceof RefNode arrObjRef)

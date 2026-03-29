@@ -11,11 +11,12 @@ public class Lexer {
     private int startIdx = -1;
 
     private TokenType lastGrammarToken = TokenType.UNKNOWN;
-    private QuoteState quoteState = new QuoteState();
+    private final QuoteState quoteState = new QuoteState();
 
     private final List<Token> result = new ArrayList<>();
 
-    private int line = 1, col = 1;
+    private int line = 1;
+    private int col = 1;
     private int tokenLine = 0;
     private int tokenCol = 0;
 
@@ -57,7 +58,7 @@ public class Lexer {
 
             // ']' counts as RBRACKET only when openBrackets > 0
             boolean nonRBracket = openBrackets == 0 && currToken == TokenType.RBRACKET;
-            if(currToken == TokenType.RBRACKET && openBrackets>0 && !nonRBracket)
+            if(currToken == TokenType.RBRACKET && openBrackets>0)
                 openBrackets--;
 
             if (nonLBracket || nonRBracket)
