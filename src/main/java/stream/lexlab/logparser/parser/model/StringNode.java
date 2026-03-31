@@ -1,6 +1,4 @@
-package com.alexportfolio.logparser.parser.model;
-
-import java.util.Objects;
+package stream.lexlab.logparser.parser.model;
 
 public final class StringNode implements Node {
     private final String value;

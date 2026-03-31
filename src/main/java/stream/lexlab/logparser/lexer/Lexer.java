@@ -1,4 +1,4 @@
-package com.alexportfolio.logparser.lexer;
+package stream.lexlab.logparser.lexer;
 
 import java.util.ArrayList;
 import java.util.List;

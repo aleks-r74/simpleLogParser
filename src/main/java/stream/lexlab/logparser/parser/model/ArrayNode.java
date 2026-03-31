@@ -1,4 +1,4 @@
-package com.alexportfolio.logparser.parser.model;
+package stream.lexlab.logparser.parser.model;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

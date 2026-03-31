@@ -1,6 +1,6 @@
-package com.alexportfolio.logparser.transform;
+package stream.lexlab.logparser.transform;
 
-import com.alexportfolio.logparser.parser.model.*;
+import stream.lexlab.logparser.parser.model.*;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

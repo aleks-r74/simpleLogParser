@@ -1,8 +1,8 @@
-package com.alexportfolio.logparser.parser;
+package stream.lexlab.logparser.parser;
 
-import com.alexportfolio.logparser.lexer.Token;
-import com.alexportfolio.logparser.lexer.TokenType;
-import com.alexportfolio.logparser.parser.model.*;
+import stream.lexlab.logparser.lexer.Token;
+import stream.lexlab.logparser.lexer.TokenType;
+import stream.lexlab.logparser.parser.model.*;
 
 import java.util.List;
 

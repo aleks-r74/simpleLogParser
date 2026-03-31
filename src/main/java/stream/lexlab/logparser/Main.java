@@ -1,11 +1,11 @@
-package com.alexportfolio.logparser;
+package stream.lexlab.logparser;
 
-import com.alexportfolio.logparser.lexer.Lexer;
-import com.alexportfolio.logparser.lexer.Token;
-import com.alexportfolio.logparser.parser.Parser;
-import com.alexportfolio.logparser.transform.Referencer;
-import com.alexportfolio.logparser.parser.model.*;
-import com.alexportfolio.logparser.transform.TreeToMapConverter;
+import stream.lexlab.logparser.lexer.Lexer;
+import stream.lexlab.logparser.lexer.Token;
+import stream.lexlab.logparser.parser.Parser;
+import stream.lexlab.logparser.parser.model.ObjectNode;
+import stream.lexlab.logparser.transform.Referencer;
+import stream.lexlab.logparser.transform.TreeToMapConverter;
 import com.google.gson.GsonBuilder;
 
 
@@ -29,7 +29,7 @@ public class Main {
 
         // 3. Create references
         Referencer referencer = new Referencer();
-        referencer.findRefs(root, "timestamp");
+        referencer.findRefs(root,  "timestamp:" + root.getType());
         referencer.collapse(root); // if collapsed, only reference and type preserved in the tree
 
         System.out.println("_".repeat(20));
@@ -43,7 +43,7 @@ public class Main {
 
         // 6. find Node by reference
         System.out.println("_".repeat(20));
-        String ref = "timestamp.customer.address";
+        String ref = "timestamp:SessionRoot.customer.address";
         System.out.printf("Reference \"%s\":\n", ref);
         var n = referencer.explode(ref);
         pojo = TreeToMapConverter.convertNode(n, true);
