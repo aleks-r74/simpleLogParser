@@ -17,8 +17,6 @@ public class Lexer {
     private TokenType lastGrammarToken = TokenType.UNKNOWN;
     private final QuoteState quoteState = new QuoteState();
     private boolean multilineActive = false;
-    private boolean multilineJustStarted = false;
-    private boolean multilineLineRead = false;
     private final List<Token> result = new ArrayList<>();
 
     private int line = 1;
@@ -42,7 +40,7 @@ public class Lexer {
     public List<Token> tokenize() {
         TokenType currToken;
 
-        while ((currToken = nextToken()) != TokenType.EOF) {
+        while ((currToken = nextToken())!=TokenType.EOF) {
 
             // Start of a multi-character token
             if (currToken == TokenType.UNRESOLVED && startIdx == -1) {
@@ -75,7 +73,6 @@ public class Lexer {
                         if (lexeme.equals("...")) {
                             multichar = TokenType.MULTILINE;
                             multilineActive = true;
-                            multilineJustStarted = true;
                         } else if (eol) {
                             multichar = TokenType.VALUE;
                         }
@@ -83,7 +80,6 @@ public class Lexer {
                     case MULTILINE, LINE -> {
                         if (eol) {
                             multichar = TokenType.LINE;
-                            multilineLineRead = true;
                         }
                     }
                 }
@@ -95,7 +91,7 @@ public class Lexer {
                 // Any VALUE without assignment is NOISE
                 if (multichar == TokenType.VALUE && lastGrammarToken != TokenType.EQUAL) {
                     multichar = TokenType.NOISE;
-                    if (!withNoise) continue;
+                    if(!withNoise) continue;
                 }
 
                 result.add(new Token(multichar, lexeme, tokenLine, tokenCol));
@@ -104,23 +100,17 @@ public class Lexer {
 
             // Single-character token
             if (TokenType.isKnown(currToken)) {
-                if (currToken == TokenType.EOL) {
-                    if (multilineActive) {
-                        if (multilineJustStarted) {
-                            multilineJustStarted = false;
-                        } else if (multilineLineRead) {
-                            multilineLineRead = false;
-                        } else {
-                            multilineActive = false;
-                        }
-                    } else if (lastGrammarToken == TokenType.EQUAL) {
-                        result.add(new Token(TokenType.VALUE, "null", line, col));
-                    }
-                } else {
+                // Handle absent values
+                if (lastGrammarToken == TokenType.EQUAL && currToken == TokenType.EOL) {
+                    result.add(new Token(TokenType.VALUE, "null", line, col));
+                }
+
+                if (currToken != TokenType.EOL) {
                     result.add(new Token(currToken, line, col));
                     lastGrammarToken = currToken;
                 }
             }
+
         }
 
         result.add(new Token(TokenType.EOF, line, col));
@@ -147,10 +137,6 @@ public class Lexer {
             advancePosition(ch);
         }
 
-        if (multilineActive) {
-            return ch == '\n' ? TokenType.EOL : TokenType.UNRESOLVED;
-        }
-
         TokenType currToken = quoteState.isInside()
                 ? TokenType.UNRESOLVED
                 : TokenType.getType(ch);
@@ -161,29 +147,31 @@ public class Lexer {
         }
 
         // Only classify brackets as grammar tokens when we are not inside a text token.
-        if (startIdx < 0) {
-            if ((currToken == TokenType.LBRACKET && nextGrammarToken() != TokenType.LBRACE)     // '[' must be followed by '{' to be LBRACKET
-                    || (currToken == TokenType.RBRACKET && lastGrammarToken != TokenType.RBRACE)) { // ']' must be preceded by '}' to be RBRACKET
+        if (startIdx < 0)
+            if ((currToken == TokenType.LBRACKET && nextGrammarToken() != TokenType.LBRACE)             // '[' must be followed by '{' to be LBRACKET
+                    || (currToken == TokenType.RBRACKET && lastGrammarToken != TokenType.RBRACE)) {     // ']' must be preceeded by '}' to be RBRACKET
                 currToken = TokenType.UNRESOLVED;
             }
-        }
+
 
         return currToken;
     }
 
     /**
      * skips all whitespaces including EOL and returns the next grammar token
+     * @return
      */
-    private TokenType nextGrammarToken() {
+    private TokenType nextGrammarToken(){
         if (cursor >= content.length()) return TokenType.EOF;
         int c = cursor;
         Character ch = content.charAt(c++);
         var tmpQuoteTracker = new QuoteState(quoteState.inside);
-        while (
+        while(
                 c < content.length()
                         && Character.isWhitespace(ch)
                         && !tmpQuoteTracker.trackQuotes(ch)
-        ) {
+        )
+        {
             ch = content.charAt(c++);
         }
         return TokenType.getType(ch);
@@ -201,7 +189,7 @@ public class Lexer {
     }
 
     private String getRawLexeme() {
-        return content.substring(startIdx, cursor - 1);
+        return content.substring(startIdx, cursor-1);
     }
 
     private String trimQuotedValue(String lexeme) {

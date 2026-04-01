@@ -45,9 +45,9 @@ public class Main {
         System.out.println("_".repeat(20));
         String ref = "timestamp:SessionRoot.customer.address";
         System.out.printf("Reference \"%s\":\n", ref);
-        var n = referencer.explode(ref);
-        pojo = TreeToMapConverter.convertNode(n, true);
-        System.out.println(gson.toJson(pojo));
+//        var n = referencer.explode(ref);
+//        pojo = TreeToMapConverter.convertNode(n, true);
+//        System.out.println(gson.toJson(pojo));
 
         // 7. don't forget to clean the storage when no longer needed:
         referencer.reset();
