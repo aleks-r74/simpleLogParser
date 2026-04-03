@@ -1,11 +1,8 @@
 package stream.lexlab.logparser;
 
-import com.google.gson.GsonBuilder;
 import stream.lexlab.logparser.lexer.Lexer;
-import stream.lexlab.logparser.lexer.StructureToken;
-import stream.lexlab.logparser.parser.Parser;
-import stream.lexlab.logparser.parser.model.ObjectNode;
-import stream.lexlab.logparser.transform.TreeToMapConverter;
+import stream.lexlab.logparser.token.StructureToken;
+import stream.lexlab.logparser.token.Token;
 
 
 import java.io.IOException;
@@ -19,7 +16,7 @@ public class Main {
         String logs = Files.readString(Path.of(".\\test.log"));
         // 1. Create tokens
         Lexer lexer = new Lexer(logs);
-        List<StructureToken> structureTokens = lexer.tokenPostProcessor();
+        List<Token> structureTokens = lexer.tokenPostProcessor();
         structureTokens.forEach(System.out::println);
 
 //        // 2. Create the tree
