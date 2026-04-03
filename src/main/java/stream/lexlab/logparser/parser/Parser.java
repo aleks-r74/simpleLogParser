@@ -1,6 +1,5 @@
 package stream.lexlab.logparser.parser;
 
-import stream.lexlab.logparser.token.StructureToken;
 import stream.lexlab.logparser.parser.model.*;
 import stream.lexlab.logparser.token.Token;
 
@@ -8,11 +7,11 @@ import java.util.List;
 
 public final class Parser {
 
-    private final List<Token> structureTokens;
+    private final List<Token> tokens;
     private int current;
 
-    public Parser(List<Token> structureTokens){
-        this.structureTokens = structureTokens;
+    public Parser(List<Token> tokens){
+        this.tokens = tokens;
     }
 
     public ObjectNode parseDocument() {
@@ -77,13 +76,13 @@ public final class Parser {
     }
 
     private Token peek() {
-        if (current >= structureTokens.size()) return structureTokens.get(structureTokens.size() - 1);
-        return structureTokens.get(current);
+        if (current >= tokens.size()) return tokens.get(tokens.size() - 1);
+        return tokens.get(current);
     }
 
     private Token advance() {
         if (!isAtEnd()) current++;
-        return structureTokens.get(current - 1);
+        return tokens.get(current - 1);
     }
 
     private Token consume(Token.Type expected) {
@@ -92,8 +91,8 @@ public final class Parser {
     }
 
     private boolean isAtEnd() {
-        return current >= structureTokens.size()
-                || structureTokens.get(current).type == Token.Type.EOD;
+        return current >= tokens.size()
+                || tokens.get(current).type == Token.Type.EOD;
     }
 
 }

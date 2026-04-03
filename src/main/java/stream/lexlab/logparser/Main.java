@@ -3,6 +3,7 @@ package stream.lexlab.logparser;
 import stream.lexlab.logparser.lexer.Lexer;
 import stream.lexlab.logparser.token.StructureToken;
 import stream.lexlab.logparser.token.Token;
+import stream.lexlab.logparser.token.processor.TokenPostProcessor;
 
 
 import java.io.IOException;
@@ -16,8 +17,11 @@ public class Main {
         String logs = Files.readString(Path.of(".\\test.log"));
         // 1. Create tokens
         Lexer lexer = new Lexer(logs);
-        List<Token> structureTokens = lexer.tokenPostProcessor();
-        structureTokens.forEach(System.out::println);
+        List<StructureToken> structureTokens = lexer.tokenize();
+        var tokenPostProcessor = new TokenPostProcessor();
+
+        List<Token> grammarTokens = tokenPostProcessor.toGrammarTokens(structureTokens);
+        grammarTokens.forEach(System.out::println);
 
 //        // 2. Create the tree
 //        Parser parser = new Parser(structureTokens);
