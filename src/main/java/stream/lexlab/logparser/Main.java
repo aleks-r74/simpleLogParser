@@ -1,9 +1,14 @@
 package stream.lexlab.logparser;
 
+import com.google.gson.GsonBuilder;
 import stream.lexlab.logparser.lexer.Lexer;
+import stream.lexlab.logparser.parser.Parser;
+import stream.lexlab.logparser.parser.model.ObjectNode;
 import stream.lexlab.logparser.token.StructureToken;
 import stream.lexlab.logparser.token.Token;
 import stream.lexlab.logparser.token.processor.TokenPostProcessor;
+import stream.lexlab.logparser.transform.Referencer;
+import stream.lexlab.logparser.transform.TreeToMapConverter;
 
 
 import java.io.IOException;
@@ -19,27 +24,26 @@ public class Main {
         Lexer lexer = new Lexer(logs);
         List<StructureToken> structureTokens = lexer.tokenize();
         var tokenPostProcessor = new TokenPostProcessor();
-
         List<Token> grammarTokens = tokenPostProcessor.toGrammarTokens(structureTokens);
         grammarTokens.forEach(System.out::println);
 
 //        // 2. Create the tree
-//        Parser parser = new Parser(structureTokens);
-//        ObjectNode root = parser.parseDocument();
+        Parser parser = new Parser(grammarTokens);
+        ObjectNode root = parser.parseDocument();
 //
 //        // 3. Create references
-//        Referencer referencer = new Referencer();
-//        referencer.findRefs(root,  "timestamp:" + root.getType());
-//        referencer.collapse(root); // if collapsed, only reference and type preserved in the tree
-//
-//        System.out.println("_".repeat(20));
+        Referencer referencer = new Referencer();
+        referencer.findRefs(root,  "timestamp:" + root.getType());
+        referencer.collapse(root); // if collapsed, only reference and type preserved in the tree
+
+        System.out.println("_".repeat(20));
 //
 //        // 4. convert to POJO using custom method
-//        var pojo = TreeToMapConverter.convertNode(root, true);
+        var pojo = TreeToMapConverter.convertNode(root, true);
 //
 //        // 5. convert to JSON and print
-//        var gson = new GsonBuilder().setPrettyPrinting().create();
-//        System.out.println(gson.toJson(pojo));
+        var gson = new GsonBuilder().setPrettyPrinting().create();
+        System.out.println(gson.toJson(pojo));
 //
 //        // 6. find Node by reference
 //        System.out.println("_".repeat(20));

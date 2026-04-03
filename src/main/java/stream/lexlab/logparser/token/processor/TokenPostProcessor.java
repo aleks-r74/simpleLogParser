@@ -5,23 +5,29 @@ import stream.lexlab.logparser.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class TokenPostProcessor {
+    private final Logger logger = Logger.getLogger(this.getClass().toString());
     private static final Pattern OBJECT_TYPE_PATTERN = Pattern.compile("^\\s*[A-Za-z_][A-Za-z0-9_]*<\\d+>\\s*$");
     private final List<Token> grammarTokens = new ArrayList<>();
     private ProcessorState state = new ProcessorState();;
 
     public List<Token> toGrammarTokens(List<StructureToken> structTokens){
-        for(StructureToken structToken: structTokens){
-
-            switch(state.getState()){
-                case EXPECTS_TYPE   -> handleExpectsType(structToken);
-                case EXPECTS_KEY    -> handleExpectsKey(structToken);
-                case EXPECTS_VALUE  -> handleExpectsValue(structToken);
-                case IN_QUOTES      -> handleInQuotes(structToken);
-                case IN_MULTILINE   -> handleInMultiline(structToken);
+        try {
+            for (StructureToken structToken : structTokens) {
+                switch (state.getState()) {
+                    case EXPECTS_TYPE -> handleExpectsType(structToken);
+                    case EXPECTS_KEY -> handleExpectsKey(structToken);
+                    case EXPECTS_VALUE -> handleExpectsValue(structToken);
+                    case IN_QUOTES -> handleInQuotes(structToken);
+                    case IN_MULTILINE -> handleInMultiline(structToken);
+                }
             }
+        } catch (IllegalStateException | UnsupportedOperationException e){
+            logger.info(state.toString());
+            throw e;
         }
         return grammarTokens;
     }
@@ -42,11 +48,15 @@ public class TokenPostProcessor {
                 grammarTokens.add(Token.fromStructureToken(structureToken));
                 this.state.update(ProcessorState.Phase.EXPECTS_VALUE);
             }
-            case RBRACE, RBRACKET -> { // case when returning from inner object
-                if (state.isAccEmpty())
+            case RBRACE, RBRACKET -> {
+                if (state.isAccEmpty()) // when returning from inner object
                     grammarTokens.add(Token.fromStructureToken(structureToken));
-                else
+                else // when building the field name
                     state.accumulate(structureToken);
+            }
+            case LBRACE -> {    // after returning from the inner object
+                grammarTokens.add(Token.fromStructureToken(structureToken));
+                this.state.update(ProcessorState.Phase.EXPECTS_TYPE);
             }
             default -> state.accumulate(structureToken);
         }
@@ -56,7 +66,7 @@ public class TokenPostProcessor {
         switch(structureToken.type){
             case EOL -> {
                 if(state.isAccEmpty()) return;
-                grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE));
+                grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE, String::stripTrailing));
                 this.state.update(ProcessorState.Phase.EXPECTS_KEY);
             }
             case LBRACE -> {
@@ -86,7 +96,6 @@ public class TokenPostProcessor {
     private void handleInQuotes(StructureToken structureToken){
         switch(structureToken.type){
             case QUOTE -> {
-
                 if (state.isAccEmpty())
                     state.accumulate(structureToken);
                 else if(!state.isAccEmpty()
@@ -94,7 +103,7 @@ public class TokenPostProcessor {
                     state.accumulate(structureToken);
                 else{
                     state.accumulate(structureToken);
-                    grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE));
+                    grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE, this::cutEnds));
                     state.update(ProcessorState.Phase.EXPECTS_KEY);
                 }
 
@@ -105,25 +114,25 @@ public class TokenPostProcessor {
 
     int eolCuonter = -1;
     private void handleInMultiline(StructureToken structureToken){
-        // first structure token after MULTILINE is EOL - skip it
-        if(structureToken.type == StructureToken.Type.EOL && eolCuonter == -1){
-            eolCuonter++;
-            return;
-        }
-        // change of state on 2 sequential EOL
-        if (structureToken.type == StructureToken.Type.EOL){
-            if(++eolCuonter >= 2){
-                eolCuonter = 0;
-                this.state.update(ProcessorState.Phase.EXPECTS_KEY);
-                return;
-            }
-            grammarTokens.add(state.reduceAccumulator(Token.Type.LINE));
-            return;
-        }
-        else
-            eolCuonter = 0;
+        switch(structureToken.type){
+            case EOL -> {
+                if (eolCuonter == -1){ // first structure token after MULTILINE is EOL - skip it
+                    ++eolCuonter;
+                    return;
+                }
 
-        state.accumulate(structureToken);
+                if(!state.isAccEmpty())
+                    grammarTokens.add(state.reduceAccumulator(Token.Type.LINE));
+
+                if(eolCuonter >= 2){
+                    eolCuonter = -1;
+                    this.state.update(ProcessorState.Phase.EXPECTS_KEY);
+                }
+                else eolCuonter++;
+            }
+            default -> state.accumulate(structureToken);
+
+        }
     }
 
     private boolean looksLikeObjectType(String lexeme) {
@@ -131,10 +140,16 @@ public class TokenPostProcessor {
     }
 
     private String normalizeFieldName(String lexeme) {
-        return lexeme.replaceFirst("\\[\\d+\\]\\s*$", "");
+        return lexeme.replaceFirst("\\[\\d+\\]", "").stripTrailing();
     }
 
     private String normalizeObjectType(String lexeme) {
-        return lexeme.replaceFirst("<\\d+>\\s*$", "");
+        return lexeme.replaceFirst("<\\d+>", "").strip();
+    }
+
+    private String cutEnds(String lexeme){
+        if (lexeme.length() < 2)
+            return lexeme;
+        return lexeme.substring(1, lexeme.length() - 1);
     }
 }

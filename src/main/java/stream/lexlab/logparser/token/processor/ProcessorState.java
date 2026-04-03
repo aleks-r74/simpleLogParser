@@ -33,6 +33,10 @@ public class ProcessorState {
         return accumulator.get(accumulator.size()-1);
     }
 
+    public void accReset(){
+        accumulator.clear();
+    }
+
     public Token reduceAccumulator(Token.Type resultType){
         return reduceAccumulator(resultType, (String s) -> s);
     }
@@ -59,5 +63,10 @@ public class ProcessorState {
 
     public enum Phase {
         EXPECTS_TYPE, EXPECTS_KEY, EXPECTS_VALUE, IN_QUOTES, IN_MULTILINE
+    }
+
+    @Override
+    public String toString() {
+        return "\nProcessorState: %s\nAccumulator: %s".formatted(state,accumulator);
     }
 }
