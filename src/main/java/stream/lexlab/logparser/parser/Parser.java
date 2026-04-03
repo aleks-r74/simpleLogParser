@@ -1,22 +1,22 @@
 package stream.lexlab.logparser.parser;
 
-import stream.lexlab.logparser.lexer.Token;
-import stream.lexlab.logparser.lexer.TokenType;
+import stream.lexlab.logparser.lexer.StructureToken;
+import stream.lexlab.logparser.lexer.StructureTokenType;
 import stream.lexlab.logparser.parser.model.*;
 
 import java.util.List;
 
 public final class Parser {
 
-    private final List<Token> tokens;
+    private final List<StructureToken> structureTokens;
     private int current;
 
-    public Parser(List<Token> tokens){
-        this.tokens = tokens;
+    public Parser(List<StructureToken> structureTokens){
+        this.structureTokens = structureTokens;
     }
 
     public ObjectNode parseDocument() {
-        Token first = consume(TokenType.OBJTYPE);
+        StructureToken first = consume(StructureTokenType.OBJTYPE);
         String type = first.lexeme;
         var onBuilder = ObjectNode.Builder.builder().type(type);
         while(!isAtEnd()) {
@@ -26,9 +26,9 @@ public final class Parser {
     }
 
     private void parseKeyValueInto(ObjectNode.Builder onBuilder) {
-        Token t = consume(TokenType.IDENTIFIER);
+        StructureToken t = consume(StructureTokenType.IDENTIFIER);
         String key = t.lexeme;
-        consume(TokenType.EQUAL);
+        consume(StructureTokenType.EQUAL);
         onBuilder.addField(key, parseValue());
     }
 
@@ -43,57 +43,57 @@ public final class Parser {
     }
 
     private ObjectNode parseObject() {
-        consume(TokenType.LBRACE);
-        String type = consume(TokenType.OBJTYPE).lexeme;
+        consume(StructureTokenType.LBRACE);
+        String type = consume(StructureTokenType.OBJTYPE).lexeme;
         var onBuilder = ObjectNode.Builder.builder().type(type);
-        while (!isAtEnd() && peek().type != TokenType.RBRACE) {
+        while (!isAtEnd() && peek().type != StructureTokenType.RBRACE) {
             parseKeyValueInto(onBuilder);
         }
-        consume(TokenType.RBRACE);
+        consume(StructureTokenType.RBRACE);
         return onBuilder.build();
     }
 
     private ArrayNode parseArray() {
-        consume(TokenType.LBRACKET);
+        consume(StructureTokenType.LBRACKET);
         var anBuilder = ArrayNode.Builder.builder();
-        while(peek().type != TokenType.RBRACKET){
+        while(peek().type != StructureTokenType.RBRACKET){
             anBuilder.add(parseObject());
         }
-        consume(TokenType.RBRACKET);
+        consume(StructureTokenType.RBRACKET);
         return anBuilder.build();
     }
 
     private StringNode parseString() {
-        var strValue = consume(TokenType.VALUE).lexeme;
+        var strValue = consume(StructureTokenType.VALUE).lexeme;
         return new StringNode(strValue);
     }
 
     private MultilineNode parseMultiline() {
-        consume(TokenType.MULTILINE);
+        consume(StructureTokenType.MULTILINE);
         var mlnBuilder = MultilineNode.Builder.builder();
-        while(peek().type == TokenType.LINE)
+        while(peek().type == StructureTokenType.LINE)
             mlnBuilder.addLine(advance().lexeme);
         return mlnBuilder.build();
     }
 
-    private Token peek() {
-        if (current >= tokens.size()) return tokens.get(tokens.size() - 1);
-        return tokens.get(current);
+    private StructureToken peek() {
+        if (current >= structureTokens.size()) return structureTokens.get(structureTokens.size() - 1);
+        return structureTokens.get(current);
     }
 
-    private Token advance() {
+    private StructureToken advance() {
         if (!isAtEnd()) current++;
-        return tokens.get(current - 1);
+        return structureTokens.get(current - 1);
     }
 
-    private Token consume(TokenType expected) {
+    private StructureToken consume(StructureTokenType expected) {
         if (peek().type == expected) return advance();
         throw new IllegalStateException("Expected token: " + expected + ", got: " + peek());
     }
 
     private boolean isAtEnd() {
-        return current >= tokens.size()
-                || tokens.get(current).type == TokenType.EOF;
+        return current >= structureTokens.size()
+                || structureTokens.get(current).type == StructureTokenType.EOD;
     }
 
 }

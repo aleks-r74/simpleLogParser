@@ -1,19 +1,19 @@
 package stream.lexlab.logparser.lexer;
 
-public class Token {
-        public final TokenType type;
-        public final String lexeme;
+public class StructureToken {
+        public StructureTokenType type;
+        public String lexeme;
         public final int line;
         public final int column;
 
-        public Token(TokenType type, String lexeme, int line, int column){
+        public StructureToken(StructureTokenType type, String lexeme, int line, int column){
             this.type = type;
             this.lexeme = lexeme;
             this.line = line;
             this.column = column;
         }
 
-    public Token(TokenType type, int line, int column){
+    public StructureToken(StructureTokenType type, int line, int column){
         this.type = type;
         this.lexeme = switch(type){
             case EQUAL -> "=";
@@ -22,7 +22,7 @@ public class Token {
             case LBRACKET -> "[";
             case RBRACKET -> "]";
             case EOL -> "\\n";
-            case EOF -> "END";
+            case EOD -> "END";
             default -> throw new IllegalArgumentException("No description for token %s".formatted(type.toString()));
         };
         this.line = line;

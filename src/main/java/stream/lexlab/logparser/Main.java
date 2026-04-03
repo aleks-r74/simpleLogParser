@@ -1,12 +1,7 @@
 package stream.lexlab.logparser;
 
 import stream.lexlab.logparser.lexer.Lexer;
-import stream.lexlab.logparser.lexer.Token;
-import stream.lexlab.logparser.parser.Parser;
-import stream.lexlab.logparser.parser.model.ObjectNode;
-import stream.lexlab.logparser.transform.Referencer;
-import stream.lexlab.logparser.transform.TreeToMapConverter;
-import com.google.gson.GsonBuilder;
+import stream.lexlab.logparser.lexer.StructureToken;
 
 
 import java.io.IOException;
@@ -20,41 +15,41 @@ public class Main {
         String logs = Files.readString(Path.of(".\\test.log"));
         // 1. Create tokens
         Lexer lexer = new Lexer(logs);
-        List<Token> tokens = lexer.tokenize();
-        tokens.forEach(System.out::println);
+        List<StructureToken> structureTokens = lexer.tokenize();
+        structureTokens.forEach(System.out::println);
 
-        // 2. Create the tree
-        Parser parser = new Parser(tokens);
-        ObjectNode root = parser.parseDocument();
-
-        // 3. Create references
-        Referencer referencer = new Referencer();
-        referencer.findRefs(root,  "timestamp:" + root.getType());
-        referencer.collapse(root); // if collapsed, only reference and type preserved in the tree
-
-        System.out.println("_".repeat(20));
-
-        // 4. convert to POJO using custom method
-        var pojo = TreeToMapConverter.convertNode(root, true);
-
-        // 5. convert to JSON and print
-        var gson = new GsonBuilder().setPrettyPrinting().create();
-        System.out.println(gson.toJson(pojo));
-
-        // 6. find Node by reference
-        System.out.println("_".repeat(20));
-        String ref = "timestamp:SessionRoot.customer.address";
-        System.out.printf("Reference \"%s\":\n", ref);
-//        var n = referencer.explode(ref);
-//        pojo = TreeToMapConverter.convertNode(n, true);
+//        // 2. Create the tree
+//        Parser parser = new Parser(tokens);
+//        ObjectNode root = parser.parseDocument();
+//
+//        // 3. Create references
+//        Referencer referencer = new Referencer();
+//        referencer.findRefs(root,  "timestamp:" + root.getType());
+//        referencer.collapse(root); // if collapsed, only reference and type preserved in the tree
+//
+//        System.out.println("_".repeat(20));
+//
+//        // 4. convert to POJO using custom method
+//        var pojo = TreeToMapConverter.convertNode(root, true);
+//
+//        // 5. convert to JSON and print
+//        var gson = new GsonBuilder().setPrettyPrinting().create();
 //        System.out.println(gson.toJson(pojo));
-
-        // 7. don't forget to clean the storage when no longer needed:
-        referencer.reset();
-        System.out.println("_".repeat(20));
-        System.out.printf("Reference \"%s\" after resetting the referencer:\n", ref);
-        if(referencer.explode(ref) == null)
-            System.out.println("Reference not found");
+//
+//        // 6. find Node by reference
+//        System.out.println("_".repeat(20));
+//        String ref = "timestamp:SessionRoot.customer.address";
+//        System.out.printf("Reference \"%s\":\n", ref);
+////        var n = referencer.explode(ref);
+////        pojo = TreeToMapConverter.convertNode(n, true);
+////        System.out.println(gson.toJson(pojo));
+//
+//        // 7. don't forget to clean the storage when no longer needed:
+//        referencer.reset();
+//        System.out.println("_".repeat(20));
+//        System.out.printf("Reference \"%s\" after resetting the referencer:\n", ref);
+//        if(referencer.explode(ref) == null)
+//            System.out.println("Reference not found");
 
     }
 
