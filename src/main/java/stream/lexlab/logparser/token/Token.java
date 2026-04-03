@@ -1,5 +1,7 @@
 package stream.lexlab.logparser.token;
 
+import java.util.function.Function;
+
 public class Token {
     public Type type;
     public String lexeme;
@@ -31,6 +33,10 @@ public class Token {
 
     public static Token fromTextTokenAs(StructureToken textToken, Type type){
         return new Token(type, textToken.lexeme, textToken.line, textToken.column);
+    }
+
+    public static Token fromTextTokenAs(StructureToken textToken, Type type, Function<String, String> normalizer){
+        return new Token(type, normalizer.apply(textToken.lexeme), textToken.line, textToken.column);
     }
 
     public static Token fromStructureToken(StructureToken token){

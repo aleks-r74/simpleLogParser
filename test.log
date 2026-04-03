@@ -3,8 +3,8 @@ Noise before root
 
 DeepRoot<1>
 t=1
-    name="Roottest"
-    version="v1.0"
+    name="Root  [{}] \n \" test"
+    version     ="v1.0"
 
     level1[2]=[
         {

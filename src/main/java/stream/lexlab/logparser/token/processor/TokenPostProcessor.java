@@ -28,7 +28,7 @@ public class TokenPostProcessor {
 
     private void handleExpectsType(StructureToken structureToken){
         if(looksLikeObjectType(structureToken.lexeme)) {
-            grammarTokens.add(Token.fromTextTokenAs(structureToken, Token.Type.OBJTYPE));
+            grammarTokens.add(Token.fromTextTokenAs(structureToken, Token.Type.OBJTYPE, this::normalizeObjectType));
             this.state.update(ProcessorState.Phase.EXPECTS_KEY);
         }
     }
@@ -38,7 +38,7 @@ public class TokenPostProcessor {
 
         switch(structureToken.type) {
             case EQUAL -> {
-                grammarTokens.add(state.reduceAccumulator(Token.Type.IDENTIFIER));
+                grammarTokens.add(state.reduceAccumulator(Token.Type.IDENTIFIER, this::normalizeFieldName));
                 grammarTokens.add(Token.fromStructureToken(structureToken));
                 this.state.update(ProcessorState.Phase.EXPECTS_VALUE);
             }
@@ -74,12 +74,33 @@ public class TokenPostProcessor {
             case LBRACKET -> {
                 grammarTokens.add(Token.fromStructureToken(structureToken));
             }
+            case QUOTE -> {
+                state.update(ProcessorState.Phase.IN_QUOTES);
+                handleInQuotes(structureToken);
+            }
+
             default -> state.accumulate(structureToken);
         }
 
     }
     private void handleInQuotes(StructureToken structureToken){
+        switch(structureToken.type){
+            case QUOTE -> {
 
+                if (state.isAccEmpty())
+                    state.accumulate(structureToken);
+                else if(!state.isAccEmpty()
+                        && state.accPeek().lexeme.endsWith("\\"))
+                    state.accumulate(structureToken);
+                else{
+                    state.accumulate(structureToken);
+                    grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE));
+                    state.update(ProcessorState.Phase.EXPECTS_KEY);
+                }
+
+            }
+            default -> state.accumulate(structureToken);
+        }
     }
 
     int eolCuonter = -1;
@@ -105,21 +126,12 @@ public class TokenPostProcessor {
         state.accumulate(structureToken);
     }
 
-    private String trimQuotedValue(String lexeme) {
-        if (lexeme.length() >= 2 && lexeme.startsWith("\"") && lexeme.endsWith("\"")) {
-            return lexeme.substring(1, lexeme.length() - 1);
-        }
-        return lexeme;
-    }
-
     private boolean looksLikeObjectType(String lexeme) {
         return OBJECT_TYPE_PATTERN.matcher(lexeme).matches();
     }
 
     private String normalizeFieldName(String lexeme) {
-        return lexeme
-                .stripTrailing()
-                .replaceFirst("\\[\\d+\\]\\s*$", "");
+        return lexeme.replaceFirst("\\[\\d+\\]\\s*$", "");
     }
 
     private String normalizeObjectType(String lexeme) {

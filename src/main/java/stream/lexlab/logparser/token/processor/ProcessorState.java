@@ -5,6 +5,7 @@ import stream.lexlab.logparser.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class ProcessorState {
 
@@ -26,7 +27,23 @@ public class ProcessorState {
         accumulator.add(stToken);
     }
 
-    Token reduceAccumulator(Token.Type resultType){
+    public StructureToken accPeek(){
+        if(accumulator.isEmpty())
+            throw new UnsupportedOperationException("Accumulator is empty");
+        return accumulator.get(accumulator.size()-1);
+    }
+
+    public Token reduceAccumulator(Token.Type resultType){
+        return reduceAccumulator(resultType, (String s) -> s);
+    }
+
+    /**
+     * normalizes the final lexeme of the result token
+     * @param resultType grammar token of type Token
+     * @param normalizer Function<String,String> that performs lexeme processing
+     * @return
+     */
+    public Token reduceAccumulator(Token.Type resultType, Function<String, String> normalizer){
         if(accumulator.isEmpty()) throw new IllegalStateException("No tokens to merge");
         var first = accumulator.get(0);
         StringBuilder lexeme = new StringBuilder();
@@ -36,7 +53,8 @@ public class ProcessorState {
             for(var token : accumulator)
                 lexeme.append(token.lexeme);
         accumulator.clear();
-        return new Token(resultType, lexeme.toString(), first.line, first.column);
+        String normalized = normalizer.apply(lexeme.toString());
+        return new Token(resultType, normalized, first.line, first.column);
     }
 
     public enum Phase {
