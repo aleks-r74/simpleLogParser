@@ -11,14 +11,36 @@ public class ProcessorState {
 
     private Phase state = Phase.EXPECTS_TYPE;
     private List<StructureToken> accumulator = new ArrayList<>();
+    private boolean firstEOL = true;
+    private int eolCounter = 0;
 
-
-    public void update(Phase newState){
+    public void setPhase(Phase newState){
         state = newState;
     }
 
-    public Phase getState() {
+    public Phase getPhase() {
         return state;
+    }
+
+    public int getEolCounter(){
+        return eolCounter;
+    }
+
+    public void incEolCounter(){
+        ++eolCounter;
+    }
+
+    public boolean isFirstEOL() {
+        return firstEOL;
+    }
+
+    public void setFirstEOL(boolean firstEOL) {
+        this.firstEOL = firstEOL;
+    }
+
+    public void resetEolCounter(){
+        eolCounter = 0;
+        firstEOL = true;
     }
 
     public boolean isAccEmpty(){ return accumulator.isEmpty(); }
@@ -33,10 +55,6 @@ public class ProcessorState {
         return accumulator.get(accumulator.size()-1);
     }
 
-    public void accReset(){
-        accumulator.clear();
-    }
-
     public Token reduceAccumulator(Token.Type resultType){
         return reduceAccumulator(resultType, (String s) -> s);
     }
@@ -44,18 +62,15 @@ public class ProcessorState {
     /**
      * normalizes the final lexeme of the result token
      * @param resultType grammar token of type Token
-     * @param normalizer Function<String,String> that performs lexeme processing
+     * @param normalizer Function<String,String> that performs lexeme normalization
      * @return
      */
     public Token reduceAccumulator(Token.Type resultType, Function<String, String> normalizer){
         if(accumulator.isEmpty()) throw new IllegalStateException("No tokens to merge");
         var first = accumulator.get(0);
         StringBuilder lexeme = new StringBuilder();
-        if(accumulator.size() == 1)
-            lexeme.append(first.lexeme);
-        else
-            for(var token : accumulator)
-                lexeme.append(token.lexeme);
+        for (var token : accumulator)
+            lexeme.append(token.lexeme);
         accumulator.clear();
         String normalized = normalizer.apply(lexeme.toString());
         return new Token(resultType, normalized, first.line, first.column);
@@ -67,6 +82,11 @@ public class ProcessorState {
 
     @Override
     public String toString() {
-        return "\nProcessorState: %s\nAccumulator: %s".formatted(state,accumulator);
+        return """
+                ProcessorState:
+                  phase=%s
+                  eolCounter=%d
+                  accumulator=%s
+                """.formatted(state, eolCounter, accumulator);
     }
 }

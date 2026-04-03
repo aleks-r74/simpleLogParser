@@ -13,21 +13,6 @@ public class StructureToken {
             this.column = column;
         }
 
-    public StructureToken(StructureToken.Type type, int line, int column){
-        this.type = type;
-        this.lexeme = switch(type){
-            case EQUAL -> "=";
-            case LBRACE -> "{";
-            case RBRACE -> "}";
-            case LBRACKET -> "[";
-            case RBRACKET -> "]";
-            case EOL -> "\\n";
-            case EOD -> "END";
-            default -> throw new IllegalArgumentException("No description for token %s".formatted(type.toString()));
-        };
-        this.line = line;
-        this.column = column;
-    }
     @Override
     public String toString() {
         return type + "['" + lexeme + "'] @" + line + ":" + column;
@@ -75,6 +60,5 @@ public class StructureToken {
                 }
             };
         }
-
     }
 }

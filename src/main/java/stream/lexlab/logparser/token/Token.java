@@ -23,7 +23,7 @@ public class Token {
             case RBRACE -> "}";
             case LBRACKET -> "[";
             case RBRACKET -> "]";
-            case EOL -> "\\n";
+            case EOL -> "\n";
             case EOD -> "END";
             default -> throw new IllegalArgumentException("No description for token %s".formatted(type.toString()));
         };
@@ -73,7 +73,7 @@ public class Token {
             case LBRACKET -> Type.LBRACKET;
             case RBRACKET -> Type.RBRACKET;
             case EOD -> Type.EOD;
-            default -> throw new IllegalArgumentException("No corresponding GrammarToken for type %s " + type.toString());
+            default -> throw new IllegalArgumentException("No corresponding GrammarToken for type %s " + type);
         };
     }
 }

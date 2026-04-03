@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 public class TokenPostProcessor {
     private final Logger logger = Logger.getLogger(this.getClass().toString());
+    private static final int EXIT_EOL_THRESHOLD = 2;
     private static final Pattern OBJECT_TYPE_PATTERN = Pattern.compile("^\\s*[A-Za-z_][A-Za-z0-9_]*<\\d+>\\s*$");
     private final List<Token> grammarTokens = new ArrayList<>();
     private ProcessorState state = new ProcessorState();;
@@ -17,7 +18,7 @@ public class TokenPostProcessor {
     public List<Token> toGrammarTokens(List<StructureToken> structTokens){
         try {
             for (StructureToken structToken : structTokens) {
-                switch (state.getState()) {
+                switch (state.getPhase()) {
                     case EXPECTS_TYPE -> handleExpectsType(structToken);
                     case EXPECTS_KEY -> handleExpectsKey(structToken);
                     case EXPECTS_VALUE -> handleExpectsValue(structToken);
@@ -35,7 +36,7 @@ public class TokenPostProcessor {
     private void handleExpectsType(StructureToken structureToken){
         if(looksLikeObjectType(structureToken.lexeme)) {
             grammarTokens.add(Token.fromTextTokenAs(structureToken, Token.Type.OBJTYPE, this::normalizeObjectType));
-            this.state.update(ProcessorState.Phase.EXPECTS_KEY);
+            state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
         }
     }
 
@@ -46,7 +47,7 @@ public class TokenPostProcessor {
             case EQUAL -> {
                 grammarTokens.add(state.reduceAccumulator(Token.Type.IDENTIFIER, this::normalizeFieldName));
                 grammarTokens.add(Token.fromStructureToken(structureToken));
-                this.state.update(ProcessorState.Phase.EXPECTS_VALUE);
+                state.setPhase(ProcessorState.Phase.EXPECTS_VALUE);
             }
             case RBRACE, RBRACKET -> {
                 if (state.isAccEmpty()) // when returning from inner object
@@ -56,7 +57,7 @@ public class TokenPostProcessor {
             }
             case LBRACE -> {    // after returning from the inner object
                 grammarTokens.add(Token.fromStructureToken(structureToken));
-                this.state.update(ProcessorState.Phase.EXPECTS_TYPE);
+                state.setPhase(ProcessorState.Phase.EXPECTS_TYPE);
             }
             default -> state.accumulate(structureToken);
         }
@@ -67,11 +68,11 @@ public class TokenPostProcessor {
             case EOL -> {
                 if(state.isAccEmpty()) return;
                 grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE, String::stripTrailing));
-                this.state.update(ProcessorState.Phase.EXPECTS_KEY);
+                state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
             }
             case LBRACE -> {
                 grammarTokens.add(Token.fromStructureToken(structureToken));
-                this.state.update(ProcessorState.Phase.EXPECTS_TYPE);
+                state.setPhase(ProcessorState.Phase.EXPECTS_TYPE);
             }
             case TEXT -> {
                 if (!structureToken.lexeme.equals("...")){
@@ -79,13 +80,13 @@ public class TokenPostProcessor {
                     return;
                 }
                 grammarTokens.add(Token.fromTextTokenAs(structureToken, Token.Type.MULTILINE));
-                this.state.update(ProcessorState.Phase.IN_MULTILINE);
+                state.setPhase(ProcessorState.Phase.IN_MULTILINE);
             }
             case LBRACKET -> {
                 grammarTokens.add(Token.fromStructureToken(structureToken));
             }
             case QUOTE -> {
-                state.update(ProcessorState.Phase.IN_QUOTES);
+                state.setPhase(ProcessorState.Phase.IN_QUOTES);
                 handleInQuotes(structureToken);
             }
 
@@ -104,7 +105,7 @@ public class TokenPostProcessor {
                 else{
                     state.accumulate(structureToken);
                     grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE, this::cutEnds));
-                    state.update(ProcessorState.Phase.EXPECTS_KEY);
+                    state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
                 }
 
             }
@@ -112,26 +113,26 @@ public class TokenPostProcessor {
         }
     }
 
-    int eolCuonter = -1;
     private void handleInMultiline(StructureToken structureToken){
         switch(structureToken.type){
             case EOL -> {
-                if (eolCuonter == -1){ // first structure token after MULTILINE is EOL - skip it
-                    ++eolCuonter;
+                if(state.isFirstEOL()){
+                    state.setFirstEOL(false);
                     return;
                 }
 
                 if(!state.isAccEmpty())
                     grammarTokens.add(state.reduceAccumulator(Token.Type.LINE));
 
-                if(eolCuonter >= 2){
-                    eolCuonter = -1;
-                    this.state.update(ProcessorState.Phase.EXPECTS_KEY);
+                if(state.getEolCounter() >= EXIT_EOL_THRESHOLD){
+                    state.resetEolCounter();
+                    state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
+                    return;
                 }
-                else eolCuonter++;
+
+                state.incEolCounter();
             }
             default -> state.accumulate(structureToken);
-
         }
     }
 
