@@ -4,7 +4,7 @@ Just a string to test if the parser skips items
 SessionRoot<1>
     requestId="REQ-2026-03-TEST"
     source="integration-test[all-nodes]"
-    test="5"
+    test="5["
     events[3]   = [
         {
             EventRecord<10>
@@ -162,7 +162,8 @@ SessionRoot<1>
 
     }
 
-    addressBook[2]=[
+    addressBook[2]=
+    [
         {
             Address<60>
                 city="New York"
@@ -174,9 +175,5 @@ SessionRoot<1>
                 zip="10001"
         }
     ]
-    val1=
-    val2=
 
-    noise line that should be ignored completely
-    [random noise]
-    ]]] stray symbols
+

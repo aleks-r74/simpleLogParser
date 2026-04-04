@@ -65,35 +65,39 @@ public class TokenPostProcessor {
 
     private void handleExpectsValue(StructureToken structureToken){
         switch(structureToken.type){
-            case EOL -> {
-                if(lastGrammarTokenIs(Token.Type.EQUAL)) {
-                    grammarTokens.add(new Token(Token.Type.VALUE, "null", structureToken.line, structureToken.column));
-                    state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
-                }
+            case EOL -> { // Ignores EOL tokens unless a value is present, allowing the value to appear on a different line than its key.
                 if(state.isAccEmpty()) return;
                 grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE, String::stripTrailing));
                 state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
             }
-            case TEXT -> {
-                if (!structureToken.lexeme.equals("...")){
-                    state.accumulate(structureToken);
+
+            case TEXT -> { // multiline or unquoted values
+                if (structureToken.lexeme.equals("...")){
+                    grammarTokens.add(Token.fromTextTokenAs(structureToken, Token.Type.MULTILINE));
+                    state.setPhase(ProcessorState.Phase.IN_MULTILINE);
                     return;
                 }
-                grammarTokens.add(Token.fromTextTokenAs(structureToken, Token.Type.MULTILINE));
-                state.setPhase(ProcessorState.Phase.IN_MULTILINE);
+                state.accumulate(structureToken);
             }
-            case LBRACE -> {
+
+            case LBRACE -> { // value as object
                 grammarTokens.add(Token.fromStructureToken(structureToken));
                 state.setPhase(ProcessorState.Phase.EXPECTS_TYPE);
             }
-            case LBRACKET -> {
+
+            case LBRACKET -> grammarTokens.add(Token.fromStructureToken(structureToken));
+
+            case RBRACKET -> { // empty array case
                 grammarTokens.add(Token.fromStructureToken(structureToken));
+                state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
             }
-            case QUOTE -> {
+
+            case QUOTE -> { // quoted values.
                 state.setPhase(ProcessorState.Phase.IN_QUOTES);
                 handleInQuotes(structureToken);
             }
-            default -> state.accumulate(structureToken);
+
+            default -> throw new IllegalStateException("Token %s has no value handler".formatted(structureToken));
         }
 
     }
@@ -137,11 +141,6 @@ public class TokenPostProcessor {
             }
             default -> state.accumulate(structureToken);
         }
-    }
-
-    private boolean lastGrammarTokenIs(Token.Type type) {
-        if (grammarTokens.isEmpty()) return false;
-        return grammarTokens.get(grammarTokens.size() - 1).type == type;
     }
 
     private boolean looksLikeObjectType(String lexeme) {
