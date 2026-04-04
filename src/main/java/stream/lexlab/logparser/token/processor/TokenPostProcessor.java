@@ -62,7 +62,7 @@ public class TokenPostProcessor {
                 else // when building a field name
                     state.accumulate(structureToken);
             }
-            case LBRACE -> {    // entering nested object inside an array
+            case LBRACE -> {    // entering object inside an array
                 grammarTokens.add(Token.fromStructureToken(structureToken));
                 state.setPhase(ProcessorState.Phase.EXPECTS_TYPE);
             }

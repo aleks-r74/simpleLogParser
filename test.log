@@ -9,12 +9,12 @@ SessionRoot<1>
                         inluding a new line, special characters  - #}]5[{#
                         and escaped quote symbol \" end-->"
 
-    testUnquoted = # this commnet will be ignored
+    testUnquoted = # this comment will be ignored
         unquoted value does not support structure tokens like the one above #<------------------------------this value is used for testUnquoted
 
     # Events array with duplicates and nested objects
     events[3] = [
-        {
+        { #<-------------------------------------- original object
             EventRecord<10>
                 eventName="user.login"
                 actor={
@@ -42,9 +42,9 @@ SessionRoot<1>
                         model="iPhone"
                 }
         }
-        { #<-------------------------------------- duplicate object
+        { #<-------------------------------------- duplicate inner objects
             EventRecord<10>
-                eventName="user.logout"
+                eventName="user.logout" #<---------this value is different from element 0
                 actor={
                     UserProfile<20>
                         userId="u-100"
@@ -76,7 +76,7 @@ SessionRoot<1>
                                 model="iPhone"
                         }
                 }
-                { #<-------------------------------------- duplicate object
+                {
                     EventRecord<10>
                         eventName="user.login"
                         actor={
@@ -159,22 +159,9 @@ SessionRoot<1>
                     child={
                         SmallObject<72>
                             alpha="A"
-                            beta="[B# not a comment]"  # test parser ignores comment-like content
+                            beta="[B# not a comment]"  # parser ignores comment-like content if it's not inside quotes
                     }
             }
-    }
-
-    # Multi-line blocks
-    multiBlock={
-        MultiNode<80> # multiline below cannot have comment inside block
-            partA=...
-                multi line 1 # this is not a comment, part of the line
-                multi line 2
-
-            partB=...
-                multi \n line 1
-                multi line 2
-
     }
 
     # Test comments handling
@@ -213,34 +200,8 @@ SessionRoot<1>
         }
     ]
 
-    # Complex nested combination
-    complexNested[2]=[
-        {
-            Outer<200>
-                innerArray[2]=[
-                    {
-                        Inner<201>
-                            data="a"
-                    }
-                    {
-                        Inner<201>
-                            data="b"
-                    }
-                ]
-        }
-        {
-            Outer<200>
-                innerArray[2]=[
-                    {
-                        Inner<201>
-                            data="a"
-                    }
-                    {
-                        Inner<201>
-                            data="b"
-                    }
-                ]
-        }
-    ]
+
 Any text after the object is also ignored
-it can have special characters like []
+it can have special characters like square brackets
+but can't have RBRACE } since this is the EXPECTS_KEY phase
+and technically any equal sign and subsequent text will create a new key-value pair

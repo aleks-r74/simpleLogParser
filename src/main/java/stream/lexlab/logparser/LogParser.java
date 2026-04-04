@@ -12,6 +12,11 @@ import stream.lexlab.logparser.transform.TreeToMapConverter;
 import java.util.List;
 import java.util.Map;
 
+/** ==========================
+ *  Public API for the package
+ *  ==========================
+ */
+
 public class LogParser {
     Referencer referencer = new Referencer();
 
@@ -37,15 +42,15 @@ public class LogParser {
      * Builds a tree structure from the given logs and optionally deduplicates objects.
      * When `collapse` is true, duplicate objects are replaced with references to their
      * first occurrence. Deduplication is stateful, meaning future calls will reuse
-     * these references unless `reset()` is invoked.
+     * these references from the previous trees unless `reset()` is invoked.
      *
      * @param logs - the input logs as a string
-     * @param treeName - a prefix to use as the root identifier for each tree
+     * @param treeName - a prefix to use as the root identifier for each tree with a separator in the end
      * @param collapse - if true, duplicate branches are collapsed into references
      * @param hideMetadata - if true, object metadata (including IDs) is excluded from the tree
      * @return a Map representing the tree, ready for serialization
      */
-    public Map<String, Object> getTreeWithRefs(String logs, String treeName, boolean collapse, boolean hideMetadata){
+    public Map<String, Object> getTree(String logs, String treeName, boolean collapse, boolean hideMetadata){
         var root = getTree(logs);
         if(collapse) {
             referencer.findRefs(root,  treeName + root.getType());
@@ -55,12 +60,16 @@ public class LogParser {
     }
 
     /**
-     * Returns node from the internal state by its reference
-     * @param ref
-     * @return
+     * Retrieves a node from the internal state using its reference.
+     *
+     * @param ref the reference identifier of the node
+     * @return the node corresponding to the reference. Depending on the node type,
+     *         the result may be a String, a List, or a Map; returns null if the reference is not found.
      */
     public Object getNodeByRef(String ref){
         var n = referencer.explode(ref);
+        if(n == null)
+            return null;
         return TreeToMapConverter.convertNode(n, true);
     }
 
