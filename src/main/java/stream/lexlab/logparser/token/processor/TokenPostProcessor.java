@@ -18,12 +18,14 @@ public class TokenPostProcessor {
     public List<Token> toGrammarTokens(List<StructureToken> structTokens){
         try {
             for (StructureToken structToken : structTokens) {
+                state.freezeIfComment(structToken);
                 switch (state.getPhase()) {
                     case EXPECTS_TYPE -> handleExpectsType(structToken);
                     case EXPECTS_KEY -> handleExpectsKey(structToken);
                     case EXPECTS_VALUE -> handleExpectsValue(structToken);
                     case IN_QUOTES -> handleInQuotes(structToken);
                     case IN_MULTILINE -> handleInMultiline(structToken);
+                    case IN_COMMENT -> handleInComment(structToken);
                 }
             }
         } catch (IllegalStateException | UnsupportedOperationException e){
@@ -49,13 +51,13 @@ public class TokenPostProcessor {
                 grammarTokens.add(Token.fromStructureToken(structureToken));
                 state.setPhase(ProcessorState.Phase.EXPECTS_VALUE);
             }
-            case RBRACE, RBRACKET -> {
-                if (state.isAccEmpty()) // when returning from inner object
+            case RBRACE, RBRACKET -> { // when returning from inner object or array
+                if (state.isAccEmpty())
                     grammarTokens.add(Token.fromStructureToken(structureToken));
-                else // when building the field name
+                else // when building a field name
                     state.accumulate(structureToken);
             }
-            case LBRACE -> {    // after returning from the inner object
+            case LBRACE -> {    // entering nested object inside an array
                 grammarTokens.add(Token.fromStructureToken(structureToken));
                 state.setPhase(ProcessorState.Phase.EXPECTS_TYPE);
             }
@@ -141,6 +143,11 @@ public class TokenPostProcessor {
             }
             default -> state.accumulate(structureToken);
         }
+    }
+
+    private void handleInComment(StructureToken structureToken){
+        if(structureToken.type == StructureToken.Type.EOL)
+            state.unfreeze();
     }
 
     private boolean looksLikeObjectType(String lexeme) {

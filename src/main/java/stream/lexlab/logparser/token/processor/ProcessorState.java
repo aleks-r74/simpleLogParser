@@ -9,17 +9,37 @@ import java.util.function.Function;
 
 public class ProcessorState {
 
-    private Phase state = Phase.EXPECTS_TYPE;
+    private Phase phase = Phase.EXPECTS_TYPE;
+    private Phase frozenPhase = null;
     private List<StructureToken> accumulator = new ArrayList<>();
     private boolean firstEOL = true;
     private int eolCounter = 0;
 
     public void setPhase(Phase newState){
-        state = newState;
+        phase = newState;
     }
 
     public Phase getPhase() {
-        return state;
+        return phase;
+    }
+
+    /**
+     * freezes current phase if token is COMMENT
+     * @param token
+     */
+    public void freezeIfComment(StructureToken token) {
+        if (token.type == StructureToken.Type.COMMENT
+                && phase != Phase.IN_QUOTES
+                && phase != Phase.IN_MULTILINE
+                && phase != Phase.IN_COMMENT) {
+            frozenPhase = phase;
+            phase = Phase.IN_COMMENT;
+        }
+    }
+
+    public void unfreeze(){
+        phase = frozenPhase;
+        frozenPhase = null;
     }
 
     public int getEolCounter(){
@@ -77,7 +97,7 @@ public class ProcessorState {
     }
 
     public enum Phase {
-        EXPECTS_TYPE, EXPECTS_KEY, EXPECTS_VALUE, IN_QUOTES, IN_MULTILINE
+        EXPECTS_TYPE, EXPECTS_KEY, EXPECTS_VALUE, IN_QUOTES, IN_MULTILINE, IN_COMMENT
     }
 
     @Override
@@ -87,6 +107,6 @@ public class ProcessorState {
                   phase=%s
                   eolCounter=%d
                   accumulator=%s
-                """.formatted(state, eolCounter, accumulator);
+                """.formatted(phase, eolCounter, accumulator);
     }
 }

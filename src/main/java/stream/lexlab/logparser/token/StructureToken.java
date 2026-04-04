@@ -27,6 +27,8 @@ public class StructureToken {
         RBRACKET("]"),
         EOL("\\n"),
         EOD("END"),
+        COMMENT("#"),
+
         // these aren't
         UNRESOLVED("X"),
         EMPTY("E"),
@@ -53,6 +55,7 @@ public class StructureToken {
                 case '[' -> LBRACKET;
                 case ']' -> RBRACKET;
                 case '"' -> QUOTE;
+                case '#' -> COMMENT;
                 case '\n', '\r' -> EOL;
                 default -> {
                     if(Character.isWhitespace(c)) yield EMPTY;

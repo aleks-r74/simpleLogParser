@@ -1,11 +1,19 @@
-Just a string to test if the parser skips items
-[it should identify it as a noise]
-
+Any text before the root object is ignored
+Including structural tokens like [{}]
+Inside the object we can use comments that starts with # symbols
+Comments
 SessionRoot<1>
-    requestId="REQ-2026-03-TEST"
-    source="integration-test[all-nodes]"
-    test="5["
-    events[3]   = [
+
+    # example of using quoted and unquoted values
+    testQuotedChars="supports any symbols in a quoted string,
+                        inluding a new line, special characters  - #}]5[{#
+                        and escaped quote symbol \" end-->"
+
+    testUnquoted = # this commnet will be ignored
+        unquoted value does not support structure tokens like the one above #<------------------------------this value is used for testUnquoted
+
+    # Events array with duplicates and nested objects
+    events[3] = [
         {
             EventRecord<10>
                 eventName="user.login"
@@ -20,7 +28,7 @@ SessionRoot<1>
                         model="iPhone"
                 }
         }
-        {
+        { #<-------------------------------------- duplicate object
             EventRecord<10>
                 eventName="user.login"
                 actor={
@@ -34,7 +42,7 @@ SessionRoot<1>
                         model="iPhone"
                 }
         }
-        {
+        { #<-------------------------------------- duplicate object
             EventRecord<10>
                 eventName="user.logout"
                 actor={
@@ -50,6 +58,7 @@ SessionRoot<1>
         }
     ]
 
+    # Array wrapper to test nested arrays and duplicates
     eventArrayWrapper={
         ArrayWrapper<40>
             items[3]=[
@@ -67,7 +76,7 @@ SessionRoot<1>
                                 model="iPhone"
                         }
                 }
-                {
+                { #<-------------------------------------- duplicate object
                     EventRecord<10>
                         eventName="user.login"
                         actor={
@@ -98,6 +107,9 @@ SessionRoot<1>
             ]
     }
 
+    # Multi-line description to test quotes and brackets
+    # a multi-line block must end with an empty line!
+    # it does not support comments!
     description=...
         line one [with brackets]
         line two with \"escaped quote\"
@@ -108,6 +120,7 @@ SessionRoot<1>
         line two with \"escaped quote\"
         ][line three
 
+    # Duplicate customers to test object deduplication
     customer={
         CustomerRecord<50>
             customerId="C-1"
@@ -119,7 +132,7 @@ SessionRoot<1>
             }
     }
 
-    backupCustomer={
+    backupCustomer={ #<-------------------------------------- duplicate object
         CustomerRecord<50>
             customerId="C-1"
             name="Alice"
@@ -130,6 +143,7 @@ SessionRoot<1>
             }
     }
 
+    # Nested objects with small objects inside
     containers={
         Container<70>
             primary={
@@ -145,15 +159,16 @@ SessionRoot<1>
                     child={
                         SmallObject<72>
                             alpha="A"
-                            beta="[B]"
+                            beta="[B# not a comment]"  # test parser ignores comment-like content
                     }
             }
     }
 
+    # Multi-line blocks
     multiBlock={
-        MultiNode<80>
+        MultiNode<80> # multiline below cannot have comment inside block
             partA=...
-                multi line 1
+                multi line 1 # this is not a comment, part of the line
                 multi line 2
 
             partB=...
@@ -162,11 +177,13 @@ SessionRoot<1>
 
     }
 
-    addressBook[2]=
+    # Test comments handling
+    # this is comment
+    addressBook[2]= # this is comment
     [
-        {
-            Address<60>
-                city="New York"
+        { #also comment
+            Address<60> #and here
+                city="New York" #and there
                 zip="10001"
         }
         {
@@ -176,4 +193,54 @@ SessionRoot<1>
         }
     ]
 
+    # Empty array
+    emptyArray[0]=[]
 
+    # Empty object with type
+    emptyObject={
+        Placeholder<99>
+    }
+
+    # Nested array with duplicates inside
+    nestedArrayWithDuplicates[2]=[
+        {
+            ItemRecord<101>
+                value="first"
+        }
+        {
+            ItemRecord<101> # duplicate
+                value="first"
+        }
+    ]
+
+    # Complex nested combination
+    complexNested[2]=[
+        {
+            Outer<200>
+                innerArray[2]=[
+                    {
+                        Inner<201>
+                            data="a"
+                    }
+                    {
+                        Inner<201>
+                            data="b"
+                    }
+                ]
+        }
+        {
+            Outer<200>
+                innerArray[2]=[
+                    {
+                        Inner<201>
+                            data="a"
+                    }
+                    {
+                        Inner<201>
+                            data="b"
+                    }
+                ]
+        }
+    ]
+Any text after the object is also ignored
+it can have special characters like []
