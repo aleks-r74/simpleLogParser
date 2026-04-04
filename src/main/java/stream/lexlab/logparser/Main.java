@@ -17,13 +17,17 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class Main {
-
+    // this class is for demonstration only.
+    // use public API from LogParser class
     public static void main(String[] args) throws IOException {
+
         String logs = Files.readString(Path.of(".\\test.log"));
         // 1. Create tokens
         Lexer lexer = new Lexer(logs);
         List<StructureToken> structureTokens = lexer.tokenize();
         structureTokens.forEach(System.out::println);
+        System.out.println("--- end of structure tokens ---");
+
         var tokenPostProcessor = new TokenPostProcessor();
         List<Token> grammarTokens = tokenPostProcessor.toGrammarTokens(structureTokens);
         grammarTokens.forEach(System.out::println);
@@ -39,8 +43,8 @@ public class Main {
 
         System.out.println("_".repeat(20));
 
-        // 4. convert to POJO using custom method
-        var pojo = TreeToMapConverter.convertNode(root, true);
+        // 4. convert to POJO
+        var pojo = TreeToMapConverter.convertObjectNode(root, true);
 
         // 5. convert to JSON and print
         var gson = new GsonBuilder().setPrettyPrinting().create();
@@ -51,8 +55,8 @@ public class Main {
         String ref = "timestamp:SessionRoot.customer.address";
         System.out.printf("Reference \"%s\":\n", ref);
         var n = referencer.explode(ref);
-        pojo = TreeToMapConverter.convertNode(n, true);
-        System.out.println(gson.toJson(pojo));
+        var exploded = TreeToMapConverter.convertNode(n, true);
+        System.out.println(gson.toJson(exploded));
 
         // 7. don't forget to clean the storage when no longer needed:
         referencer.reset();

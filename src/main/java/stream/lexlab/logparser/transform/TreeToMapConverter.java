@@ -53,7 +53,7 @@ public class TreeToMapConverter {
         return result;
     }
 
-    private static Map<String, Object> convertObjectNode(ObjectNode node, boolean hideMetadata) {
+    public static Map<String, Object> convertObjectNode(ObjectNode node, boolean hideMetadata) {
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         var metadata = node.metadata();
         if (!hideMetadata)

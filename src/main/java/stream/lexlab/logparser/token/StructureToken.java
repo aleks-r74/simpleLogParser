@@ -29,7 +29,7 @@ public class StructureToken {
         EOD("END"),
         COMMENT("#"),
 
-        // these aren't
+        // these are not
         UNRESOLVED("X"),
         EMPTY("E"),
         QUOTE("\""),

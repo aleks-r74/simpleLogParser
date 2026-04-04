@@ -5,7 +5,12 @@ import stream.lexlab.logparser.token.StructureToken;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Represents StructureTokens, the atomic units used in text processing.
+ * Most StructureTokens are derived from a single character (e.g., '[' -> LBRACKET),
+ * while others, such as TEXT, can represent sequences of characters.
+ * These tokens must be further processed by a TokenPostProcessor before parsing.
+ */
 public class Lexer {
     private final String content;
     private int cursor = 0;
@@ -32,7 +37,7 @@ public class Lexer {
 
     /**
      * Returns type of the next token without moving the cursor
-     * @return
+     * @return token type
      */
     private StructureToken.Type nextTokenType(){
         if(cursor >= content.length())

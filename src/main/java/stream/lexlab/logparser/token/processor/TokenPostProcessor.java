@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+/**
+ * Converts StructureTokens into grammar Tokens.
+ * Grammar Tokens are context-aware: the same StructureToken may be converted
+ * into different grammar Tokens depending on its context.
+ */
 public class TokenPostProcessor {
     private final Logger logger = Logger.getLogger(this.getClass().toString());
     private static final int EXIT_EOL_THRESHOLD = 2;
