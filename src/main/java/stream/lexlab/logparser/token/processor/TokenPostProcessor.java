@@ -66,13 +66,13 @@ public class TokenPostProcessor {
     private void handleExpectsValue(StructureToken structureToken){
         switch(structureToken.type){
             case EOL -> {
+                if(lastGrammarTokenIs(Token.Type.EQUAL)) {
+                    grammarTokens.add(new Token(Token.Type.VALUE, "null", structureToken.line, structureToken.column));
+                    state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
+                }
                 if(state.isAccEmpty()) return;
                 grammarTokens.add(state.reduceAccumulator(Token.Type.VALUE, String::stripTrailing));
                 state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
-            }
-            case LBRACE -> {
-                grammarTokens.add(Token.fromStructureToken(structureToken));
-                state.setPhase(ProcessorState.Phase.EXPECTS_TYPE);
             }
             case TEXT -> {
                 if (!structureToken.lexeme.equals("...")){
@@ -82,6 +82,10 @@ public class TokenPostProcessor {
                 grammarTokens.add(Token.fromTextTokenAs(structureToken, Token.Type.MULTILINE));
                 state.setPhase(ProcessorState.Phase.IN_MULTILINE);
             }
+            case LBRACE -> {
+                grammarTokens.add(Token.fromStructureToken(structureToken));
+                state.setPhase(ProcessorState.Phase.EXPECTS_TYPE);
+            }
             case LBRACKET -> {
                 grammarTokens.add(Token.fromStructureToken(structureToken));
             }
@@ -89,7 +93,6 @@ public class TokenPostProcessor {
                 state.setPhase(ProcessorState.Phase.IN_QUOTES);
                 handleInQuotes(structureToken);
             }
-
             default -> state.accumulate(structureToken);
         }
 
@@ -134,6 +137,11 @@ public class TokenPostProcessor {
             }
             default -> state.accumulate(structureToken);
         }
+    }
+
+    private boolean lastGrammarTokenIs(Token.Type type) {
+        if (grammarTokens.isEmpty()) return false;
+        return grammarTokens.get(grammarTokens.size() - 1).type == type;
     }
 
     private boolean looksLikeObjectType(String lexeme) {

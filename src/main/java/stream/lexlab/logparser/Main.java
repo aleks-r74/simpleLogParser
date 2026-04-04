@@ -23,7 +23,7 @@ public class Main {
         // 1. Create tokens
         Lexer lexer = new Lexer(logs);
         List<StructureToken> structureTokens = lexer.tokenize();
-        //structureTokens.forEach(System.out::println);
+        structureTokens.forEach(System.out::println);
         var tokenPostProcessor = new TokenPostProcessor();
         List<Token> grammarTokens = tokenPostProcessor.toGrammarTokens(structureTokens);
         grammarTokens.forEach(System.out::println);

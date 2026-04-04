@@ -78,13 +78,17 @@ RootObject<1>
 
 ## How It Works
 
-The parser works in two stages:
+The parser works in 3 stages:
 
 1. **Tokenization**  
-   Raw text is converted into tokens that represent logical units used during parsing.
+   The raw input text is converted into structure tokens - these are the smallest atomic units that the parser will work with. Structure tokens capture basic elements such as brackets, line breaks, and text fragments without imposing any grammar rules.
+
+
+2. **PostProcessing**
+   Structure tokens are transformed into grammar tokens, which carry semantic meaning according to your language’s rules. This stage also handles contextual logic, such as detecting multi-line blocks, skipping the first EOL after a block starts, and grouping lines into meaningful units.
 
 2. **Parsing**  
-   The parser processes those tokens and rebuilds the original tree structure.
+   The parser consumes grammar tokens to build the final in-memory representation. At this stage, the logic is simple because all the contextual work has already been handled in the previous stages.
 
 This separation improves readability, maintainability, and resilience. For example, the parser can safely ignore noise at the end of the log, such as loose lines that are not part of the meaningful data.
 
