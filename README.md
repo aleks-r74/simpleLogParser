@@ -126,4 +126,4 @@ This project is useful for logs that:
 - need to be compacted for readability
 - need to be transformed into machine-readable formats such as JSON for further analysis
 
-For a brief explanation of the tokenization and parsing algorithm, see `Parsing.docx`.
+For a brief explanation of the tokenization and parsing algorithm, see `Parsing Logic.docx`.
