@@ -199,6 +199,7 @@ SessionRoot<1>
                 value="first"
         }
     ]
+Key1="Quoted string with \" [escaped quote symbol]";
 
 
 Any text after the object is also ignored
