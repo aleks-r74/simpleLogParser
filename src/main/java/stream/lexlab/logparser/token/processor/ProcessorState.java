@@ -12,8 +12,7 @@ public class ProcessorState {
     private Phase phase = Phase.EXPECTS_TYPE;
     private Phase frozenPhase = null;
     private List<StructureToken> accumulator = new ArrayList<>();
-    private boolean firstEOL = true;
-    private int eolCounter = 0;
+    private boolean firstEolFlag = true;
 
     public void setPhase(Phase newState){
         phase = newState;
@@ -42,25 +41,12 @@ public class ProcessorState {
         frozenPhase = null;
     }
 
-    public int getEolCounter(){
-        return eolCounter;
-    }
-
-    public void incEolCounter(){
-        ++eolCounter;
-    }
-
     public boolean isFirstEOL() {
-        return firstEOL;
+        return firstEolFlag;
     }
 
     public void setFirstEOL(boolean firstEOL) {
-        this.firstEOL = firstEOL;
-    }
-
-    public void resetEolCounter(){
-        eolCounter = 0;
-        firstEOL = true;
+        this.firstEolFlag = firstEOL;
     }
 
     public boolean isAccEmpty(){ return accumulator.isEmpty(); }
@@ -105,8 +91,7 @@ public class ProcessorState {
         return """
                 ProcessorState:
                   phase=%s
-                  eolCounter=%d
                   accumulator=%s
-                """.formatted(phase, eolCounter, accumulator);
+                """.formatted(phase, accumulator);
     }
 }

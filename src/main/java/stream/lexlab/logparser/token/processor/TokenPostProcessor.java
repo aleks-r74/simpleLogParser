@@ -134,17 +134,14 @@ public class TokenPostProcessor {
                     state.setFirstEOL(false);
                     return;
                 }
-
-                if(!state.isAccEmpty())
+                // when the line is empty, and this EOL is second one
+                if(state.isAccEmpty()){
+                    state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
+                    state.setFirstEOL(true);
+                }
+                else
                     grammarTokens.add(state.reduceAccumulator(Token.Type.LINE));
 
-                if(state.getEolCounter() >= EXIT_EOL_THRESHOLD){
-                    state.resetEolCounter();
-                    state.setPhase(ProcessorState.Phase.EXPECTS_KEY);
-                    return;
-                }
-
-                state.incEolCounter();
             }
             default -> state.accumulate(structureToken);
         }

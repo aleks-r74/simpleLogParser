@@ -113,12 +113,18 @@ SessionRoot<1>
     description=...
         line one [with brackets]
         line two with \"escaped quote\"
-        ][line three
-
+        ][     line three
+        Line 4
+        Line 5
+        Line 6
+    # trade-off here is that the spaces beteween ][ and "line three" are lost in the output due-to Lexer design, but it's fine for my use case
     descriptionCopy=...
         line one [with brackets]
         line two with \"escaped quote\"
-        ][line three
+        ][     line three
+        Line 4
+        Line 5
+        Line 6
 
     # Duplicate customers to test object deduplication
     customer={
