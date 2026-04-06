@@ -1,8 +1,8 @@
 package stream.lexlab.logparser.token;
 
 public class StructureToken {
-        public Type type;
-        public String lexeme;
+        public final Type type;
+        public final String lexeme;
         public final int line;
         public final int column;
 

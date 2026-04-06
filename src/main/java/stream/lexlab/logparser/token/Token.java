@@ -3,8 +3,8 @@ package stream.lexlab.logparser.token;
 import java.util.function.Function;
 
 public class Token {
-    public Type type;
-    public String lexeme;
+    public final Type type;
+    public final String lexeme;
     public final int line;
     public final int column;
 
