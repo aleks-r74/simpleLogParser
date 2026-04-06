@@ -3,8 +3,8 @@ package stream.lexlab.logparser.token;
 import java.util.function.Function;
 
 public class Token {
-    public Type type;
-    public String lexeme;
+    public final Type type;
+    public final String lexeme;
     public final int line;
     public final int column;
 
@@ -25,7 +25,7 @@ public class Token {
             case RBRACKET -> "]";
             case EOL -> "\n";
             case EOD -> "END";
-            default -> throw new IllegalArgumentException("No description for token %s".formatted(type.toString()));
+            default -> throw new IllegalArgumentException("No description for token %s".formatted(type));
         };
         this.line = line;
         this.column = column;

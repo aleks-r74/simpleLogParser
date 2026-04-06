@@ -15,13 +15,22 @@ public final class Parser {
     }
 
     public ObjectNode parseDocument() {
-        Token first = consume(Token.Type.OBJTYPE);
-        String type = first.lexeme;
-        var onBuilder = ObjectNode.Builder.builder().type(type);
-        while(!isAtEnd()) {
-            parseKeyValueInto(onBuilder);
+        try{
+
+            Token first = consume(Token.Type.OBJTYPE);
+            String type = first.lexeme;
+            var onBuilder = ObjectNode.Builder.builder().type(type);
+            while(!isAtEnd())
+                parseKeyValueInto(onBuilder);
+
+            return onBuilder.build();
+
+        } catch(IllegalStateException | UnsupportedOperationException e){
+            return ObjectNode.Builder.builder()
+                    .type("ParsingError")
+                    .addField("exception", new StringNode(e.getMessage()))
+                    .build();
         }
-        return onBuilder.build();
     }
 
     private void parseKeyValueInto(ObjectNode.Builder onBuilder) {
@@ -76,7 +85,8 @@ public final class Parser {
     }
 
     private Token peek() {
-        if (current >= tokens.size()) return tokens.get(tokens.size() - 1);
+        if (current >= tokens.size())
+            throw new IllegalStateException("Cursor out of boundaries");
         return tokens.get(current);
     }
 

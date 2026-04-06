@@ -15,10 +15,9 @@ import java.util.regex.Pattern;
  */
 public class TokenPostProcessor {
     private final Logger logger = Logger.getLogger(this.getClass().toString());
-    private static final int EXIT_EOL_THRESHOLD = 2;
     private static final Pattern OBJECT_TYPE_PATTERN = Pattern.compile("^\\s*[A-Za-z_][A-Za-z0-9_]*<\\d+>\\s*$");
     private final List<Token> grammarTokens = new ArrayList<>();
-    private ProcessorState state = new ProcessorState();;
+    private ProcessorState state = new ProcessorState();
 
     public List<Token> toGrammarTokens(List<StructureToken> structTokens){
         try {
@@ -33,6 +32,7 @@ public class TokenPostProcessor {
                     case IN_COMMENT -> handleInComment(structToken);
                 }
             }
+            grammarTokens.add(new Token(Token.Type.EOD, -1, -1));
         } catch (IllegalStateException | UnsupportedOperationException e){
             logger.info(state.toString());
             throw e;
